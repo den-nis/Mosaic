@@ -62,7 +62,7 @@ namespace Mosaic
 			});
 		}
 
-		public static MagickColor AverageColor(this MagickImage image)
+		public static MagickColor GetAverageColor(this MagickImage image)
 		{
 			long totalRed = 0;
 			long totalBlue = 0;

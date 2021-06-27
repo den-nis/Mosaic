@@ -11,7 +11,9 @@ namespace Mosaic
 	{
 		public string ImagePath { get; set; }
 
-		public TileMode TileMode { get; set; }
+		public TileMode TileMode { get; set; } = TileMode.Center;
+		public int ThumbnailResolution { get; set; } = 16;
+		public bool FullImageAverage { get; set; } = false;
 
 		public MagickImage Thumbnail { get; private set; }
 		public MagickColor Color { get; private set; }
@@ -21,18 +23,36 @@ namespace Mosaic
 			ImagePath = imagePath;
 		}
 
-		public void CreateThumbnail(int size)
+		public void Initialize()
 		{
-			var thumbnail = new MagickImage(ImagePath);
-			thumbnail.ConvertToSquare(TileMode);
-			thumbnail.Resize(size, size);
+			var image = new MagickImage(ImagePath);
+			CreateThumbnail(image);
+			ComputeAverageColor(FullImageAverage ? image : Thumbnail);
+		}
+
+		private void ComputeAverageColor(MagickImage image)
+		{
+			Color = image.GetAverageColor();
+		}
+
+		private void CreateThumbnail(MagickImage image)
+		{
+			var thumbnail = new MagickImage(image);
+			ToSquare(thumbnail, ThumbnailResolution);
 			Thumbnail = thumbnail;
 		}
 
-		public void ComputeAverageColor()
+		public MagickImage RenderFinalImage(int size)
 		{
-			using var image = new MagickImage(ImagePath);
-			Color = image.AverageColor();
+			var image = new MagickImage(ImagePath);
+			ToSquare(image, size);
+			return image;
+		}
+
+		private void ToSquare(MagickImage target, int size)
+		{
+			target.ConvertToSquare(TileMode);
+			target.Resize(size, size);
 		}
 
 		public void Dispose()

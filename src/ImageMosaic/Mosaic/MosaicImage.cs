@@ -1,13 +1,15 @@
-﻿using System;
+﻿using ImageMagick;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Mosaic
 {
 	public class MosaicImage
 	{
-		public Tile[][] Tiles { get; private set; }
 
-
-		
 
 	}
 }
