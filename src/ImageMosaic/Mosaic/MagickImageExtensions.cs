@@ -9,15 +9,15 @@ namespace Mosaic
 {
 	public static class MagickImageExtensions
 	{
-		public static void ConvertToSquare(this MagickImage image, TileMode tileMode)
+		public static void ConvertToSquare(this MagickImage image, TileImageMode tileMode)
 		{
 			switch(tileMode)
 			{
-				case TileMode.Center:
+				case TileImageMode.Center:
 					ConvertToSquareCenter(image);
 					break;
 
-				case TileMode.Stretch:
+				case TileImageMode.Stretch:
 					ConvertToSquareStretch(image);
 					break;
 
