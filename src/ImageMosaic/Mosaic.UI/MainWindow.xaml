@@ -5,8 +5,63 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Mosaic.UI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Image mosaic" Height="400" Width="800"
+		ResizeMode="NoResize">
+	<Window.Resources>
+		<Style TargetType="Slider">
+			<Setter Property="Margin" Value="10,0"/>
+			<Setter Property="AutoToolTipPlacement" Value="TopLeft"/>
+			<Setter Property="AutoToolTipPrecision" Value="0"/>
+			<Setter Property="IsSnapToTickEnabled" Value="True"/>
+		</Style>
+	</Window.Resources>
+	<Grid>
 
-    </Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition></ColumnDefinition>
+			<ColumnDefinition></ColumnDefinition>
+			<ColumnDefinition></ColumnDefinition>
+		</Grid.ColumnDefinitions>
+
+		<StackPanel>
+			<Label>Cells</Label>
+			<Label Margin="0,20,0,0">Columns:</Label>
+			<Slider Minimum="4" Maximum="200" TickFrequency="4"></Slider>
+			<Label>Rows:</Label>
+			<Slider Minimum="4" Maximum="200" TickFrequency="4"></Slider>
+			<Label>Resolution:</Label>		  
+			<Slider Minimum="8" Maximum="256" TickFrequency="8"></Slider>
+
+			<Label>Information:</Label>
+			<Label Margin="20,0">(information)</Label>
+		</StackPanel>
+
+		<StackPanel Grid.Column="1">
+			<Label>Background image</Label>
+			<Label Margin="0,20,0,0">Contrast:</Label>
+			<Slider Minimum="-100" Maximum="100"></Slider>
+			<Label>Brightness:</Label>
+			<Slider Minimum="-100" Maximum="100"></Slider>
+			
+			<Label>Tint:</Label>
+			<StackPanel Margin="10">
+				<Label>Red:</Label>
+				<Slider Minimum="0" Maximum="255"></Slider>
+				<Label>Green:</Label>
+				<Slider Minimum="0" Maximum="255"></Slider>
+				<Label>Blue:</Label>
+				<Slider Minimum="0" Maximum="255"></Slider>
+			</StackPanel>
+		</StackPanel>
+
+		<StackPanel Grid.Column="2">
+			<Label>Result</Label>
+			<Border BorderThickness="2" BorderBrush="Gray" Margin="10">
+			<Image Margin="10" MinHeight="220" Source="/preview.png">
+			</Image>
+			</Border>
+			<Button HorizontalAlignment="Right" Margin="10" MinWidth="100">Render</Button>
+		</StackPanel>
+		
+	</Grid>
 </Window>
