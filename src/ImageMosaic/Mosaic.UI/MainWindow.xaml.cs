@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mosaic.UI.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,9 +21,12 @@ namespace Mosaic.UI
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+		public RenderSettingsViewModel ViewModel { get; set; } = new RenderSettingsViewModel();
+
 		public MainWindow()
 		{
 			InitializeComponent();
+			DataContext = ViewModel;
 		}
 	}
 }
