@@ -21,7 +21,7 @@ namespace Mosaic.UI
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		public RenderSettingsViewModel ViewModel { get; set; } = new RenderSettingsViewModel();
+		public MosaicSettingsViewModel ViewModel { get; set; } = new MosaicSettingsViewModel();
 
 		public MainWindow()
 		{

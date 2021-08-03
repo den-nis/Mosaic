@@ -8,11 +8,23 @@ using System.Threading.Tasks;
 
 namespace Mosaic.UI.ViewModels
 {
-	public class RenderSettingsViewModel : INotifyPropertyChanged
+	public class MosaicSettingsViewModel : INotifyPropertyChanged
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		public int _columns;
+		private readonly string[] _renderProperties = new[]
+		{
+			nameof(Columns),
+			nameof(Rows),
+			nameof(Resolution),
+			nameof(Contrast),
+			nameof(Brightness),
+			nameof(Red),
+			nameof(Green),
+			nameof(Blue),
+		};
+
+		private int _columns;
 		public int Columns 
 		{
 			get => _columns;
@@ -23,7 +35,7 @@ namespace Mosaic.UI.ViewModels
 			}
 		}
 
-		public int _rows;
+		private int _rows;
 		public int Rows
 		{
 			get => _rows;
@@ -34,7 +46,7 @@ namespace Mosaic.UI.ViewModels
 			}
 		}
 
-		public int _resolution;
+		private int _resolution;
 		public int Resolution 
 		{
 			get => _resolution;
@@ -45,7 +57,7 @@ namespace Mosaic.UI.ViewModels
 			}
 		}
 
-		public int _contrast;
+		private int _contrast;
 		public int Contrast 
 		{
 			get => _contrast;
@@ -56,7 +68,7 @@ namespace Mosaic.UI.ViewModels
 			}
 		}
 
-		public int _brightness;
+		private int _brightness;
 		public int Brightness 
 		{
 			get => _brightness;
@@ -67,7 +79,7 @@ namespace Mosaic.UI.ViewModels
 			}
 		}
 
-		public int _red;
+		private int _red;
 		public int Red 
 		{
 			get => _red;
@@ -78,7 +90,7 @@ namespace Mosaic.UI.ViewModels
 			}
 		}
 
-		public int _green;
+		private int _green;
 		public int Green 
 		{
 			get => _green;
@@ -89,7 +101,7 @@ namespace Mosaic.UI.ViewModels
 			}
 		}
 
-		public int _blue;
+		private int _blue;
 		public int Blue 
 		{
 			get => _blue;
@@ -100,9 +112,28 @@ namespace Mosaic.UI.ViewModels
 			}
 		}
 
+		private string _renderDetails;
+		public string RenderDetails
+		{
+			get => _renderDetails;
+			set
+			{
+				_renderDetails = value;
+				NotifyPropertyChanged();
+			}
+		}
+
 		private void NotifyPropertyChanged([CallerMemberName]string propertyName = "")
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+			if (_renderProperties.Contains(propertyName))
+				RenderPropertiesChanged();
+		}
+
+		private void RenderPropertiesChanged()
+		{
+			RenderDetails = $"{Rows}x{Columns}";
 		}
 	}
 }

@@ -3,7 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		xmlns:local="clr-namespace:Mosaic.UI"
+		xmlns:local="clr-namespace:Mosaic.UI" 
+		xmlns:viewmodels="clr-namespace:Mosaic.UI.ViewModels" 
+		d:DataContext="{d:DesignInstance Type=viewmodels:MosaicSettingsViewModel}"
 		mc:Ignorable="d"
         Title="Image mosaic" Height="400" Width="800"
 		ResizeMode="NoResize">
@@ -40,7 +42,7 @@
 				<Label>Resolution:</Label>
 				<Slider Minimum="8" Maximum="256" TickFrequency="8" Value="{Binding Path=Resolution}"/>
 				<Label Margin="0,20">Information:</Label>
-				<Label Margin="20,0" x:Name="LabelInformation">(information)</Label>
+				<Label Margin="20,0" Content="{Binding Path=RenderDetails, Mode=OneWay}"/>
 			</StackPanel>
 
 			<StackPanel Grid.Column="1">
