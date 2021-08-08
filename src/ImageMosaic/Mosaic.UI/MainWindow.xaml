@@ -7,8 +7,8 @@
 		xmlns:viewmodels="clr-namespace:Mosaic.UI.ViewModels" 
 		d:DataContext="{d:DesignInstance Type=viewmodels:MosaicSettingsViewModel}"
 		mc:Ignorable="d"
-        Title="Image mosaic" Height="400" Width="800"
-		ResizeMode="NoResize">
+        Title="Image mosaic" Height="370" Width="1072"
+		ResizeMode="NoResize" SizeToContent="WidthAndHeight">
 	<Window.Resources>
 		<Style TargetType="Slider">
 			<Setter Property="Margin" Value="10,0"/>
@@ -19,21 +19,34 @@
 	</Window.Resources>
 
 	<DockPanel>
-		<Menu DockPanel.Dock="Top">
-			<MenuItem Header="File">
-				<MenuItem Header="Open background image"/>
-				<MenuItem Header="Open tile images"/>
-			</MenuItem>
-		</Menu>
-
+		
 		<Grid>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition></ColumnDefinition>
 				<ColumnDefinition></ColumnDefinition>
 				<ColumnDefinition></ColumnDefinition>
+				<ColumnDefinition></ColumnDefinition>
 			</Grid.ColumnDefinitions>
 
-			<StackPanel>
+			<DockPanel>
+				<Label DockPanel.Dock="Top">Images</Label>
+				<Button DockPanel.Dock="Bottom" Margin="10">Open images</Button>
+				<ListBox Margin="10" ItemsSource="{Binding Path=Images}">
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<DockPanel>
+								<Border BorderThickness="1" BorderBrush="Gray" Margin="2">
+									<Image Width="32" Height="32"/>
+								</Border>
+								<Label Foreground="DarkGoldenrod" Content="{Binding Path=Tag}"/>
+								<Label Content="{Binding Path=Filename}"/>
+							</DockPanel>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+			</DockPanel>
+			
+			<StackPanel Grid.Column="1">
 				<Label>Cells</Label>
 				<Label Margin="0,20,0,0">Columns:</Label>
 				<Slider Minimum="4" Maximum="200" TickFrequency="4" Value="{Binding Path=Columns}"/>
@@ -45,8 +58,8 @@
 				<Label Margin="20,0" Content="{Binding Path=RenderDetails, Mode=OneWay}"/>
 			</StackPanel>
 
-			<StackPanel Grid.Column="1">
-				<Label>Background image</Label>
+			<StackPanel Grid.Column="2">
+				<Label>Effects</Label>
 				<Label Margin="0,20,0,0">Contrast:</Label>
 				<Slider Minimum="-100" Maximum="100" Value="{Binding Path=Contrast}"/>
 				<Label>Brightness:</Label>
@@ -63,7 +76,7 @@
 				</StackPanel>
 			</StackPanel>
 
-			<StackPanel Grid.Column="2">
+			<StackPanel Grid.Column="3">
 				<Label>Result</Label>
 				<Border BorderThickness="2" BorderBrush="Gray" Margin="10">
 					<Image Margin="10" MinHeight="220" Source="/preview.png"/>

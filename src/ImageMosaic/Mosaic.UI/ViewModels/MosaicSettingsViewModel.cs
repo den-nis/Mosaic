@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -23,6 +24,9 @@ namespace Mosaic.UI.ViewModels
 			nameof(Green),
 			nameof(Blue),
 		};
+
+		private readonly ObservableCollection<ImageViewModel> _images = new();
+		public ObservableCollection<ImageViewModel> Images => _images;
 
 		private int _columns;
 		public int Columns 
