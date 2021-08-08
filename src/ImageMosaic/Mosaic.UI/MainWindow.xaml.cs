@@ -1,4 +1,5 @@
-﻿using Mosaic.UI.ViewModels;
+﻿using Microsoft.Win32;
+using Mosaic.UI.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +28,37 @@ namespace Mosaic.UI
 		{
 			InitializeComponent();
 			DataContext = ViewModel;
+		}
+
+		private void ButtonOpenImages_Click(object sender, RoutedEventArgs e)
+		{
+			var dialog = new OpenFileDialog
+			{
+				Multiselect = true,
+				Title = "Open images"
+			};
+
+			if (dialog.ShowDialog() == true)
+			{
+				ViewModel.OpenImages(dialog.FileNames);
+			}
+		}
+
+		private void ButtonSetAsMain_Click(object sender, RoutedEventArgs e)
+		{
+			if (ListBoxImages.SelectedItem is ImageViewModel imageModel)
+			{
+				ViewModel.SetMainImage(imageModel);
+			}
+		}
+
+		private void ButtonRemove_Click(object sender, RoutedEventArgs e)
+		{
+			if (ListBoxImages.SelectedItem is ImageViewModel imageModel)
+			{
+				ViewModel.RemoveImage(imageModel);
+				ListBoxImages.SelectedIndex = 0;
+			}
 		}
 	}
 }

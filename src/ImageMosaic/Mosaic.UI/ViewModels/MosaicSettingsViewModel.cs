@@ -10,9 +10,7 @@ using System.Threading.Tasks;
 namespace Mosaic.UI.ViewModels
 {
 	public class MosaicSettingsViewModel : INotifyPropertyChanged
-	{
-		public event PropertyChangedEventHandler PropertyChanged;
-
+	{ 
 		private readonly string[] _renderProperties = new[]
 		{
 			nameof(Columns),
@@ -27,6 +25,65 @@ namespace Mosaic.UI.ViewModels
 
 		private readonly ObservableCollection<ImageViewModel> _images = new();
 		public ObservableCollection<ImageViewModel> Images => _images;
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		public MosaicSettingsViewModel()
+		{
+			Columns = 16;
+			Rows = 16;
+			Resolution = 32;
+		}
+
+		public void OpenImages(IEnumerable<string> files)
+		{
+			var imageModels = files.Select(f => new ImageViewModel
+			{
+				Fullpath = f,
+				IsMainImage = false
+			});
+
+			foreach(var image in imageModels)
+			{
+				if (!Images.Contains(image))
+				{
+					Images.Add(image);
+				}
+			}
+
+			TrySetDefaultMain();
+			StartRender();
+		}
+
+		public void RemoveImage(ImageViewModel viewModel)
+		{
+			Images.Remove(viewModel);
+			TrySetDefaultMain();
+		}
+
+		private void TrySetDefaultMain()
+		{
+			if (!HasMainImage() && Images.Any())
+			{
+				SetMainImage(Images.First());
+			}
+		}
+
+		private bool HasMainImage() => Images.Any(i => i.IsMainImage);
+		
+		public void SetMainImage(ImageViewModel viewModel)
+		{
+			foreach(var image in Images)
+			{
+				image.IsMainImage = false;
+
+				if (image.Fullpath == viewModel.Fullpath)
+				{
+					image.IsMainImage = true;
+				}
+			}
+
+			StartRender();
+		}
 
 		private int _columns;
 		public int Columns 
@@ -137,7 +194,48 @@ namespace Mosaic.UI.ViewModels
 
 		private void RenderPropertiesChanged()
 		{
-			RenderDetails = $"{Rows}x{Columns}";
+			RenderDetails = BuildDetailString();
+			StartRender();
+		}
+
+		private string BuildDetailString()
+		{
+			GetAspectRatio(Rows, Columns, out int x, out int y);
+
+			return string.Join(Environment.NewLine,
+				$"",
+				$"Cell resolution : {Resolution}",
+				$"Final image size : {Columns * Resolution}x{Rows * Resolution}",
+				$"Final image aspect ratio : {x}:{y}"
+			
+			);
+
+		}
+
+		private static void GetAspectRatio(int width, int height, out int x, out int y)
+		{
+			if (width == 0 && height == 0)
+			{
+				x = y = 0;
+				return;
+			}
+
+			for (int primary = 1; ;primary++)
+			{
+				var secondary = primary * (height / (double)width);
+
+				if (secondary % 1 == 0)
+				{
+					x = primary;
+					y = (int)secondary;
+					return;
+				}
+			}
+		}
+
+		private void StartRender()
+		{
+			throw new NotImplementedException();
 		}
 	}
 }
