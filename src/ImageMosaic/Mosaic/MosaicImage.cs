@@ -1,8 +1,11 @@
 ﻿using ImageMagick;
+using Microsoft.Extensions.Caching.Memory;
 using Mosaic.ImageMatching;
 using Mosaic.Progress;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,123 +14,117 @@ namespace Mosaic
 {
 	public class MosaicImage
 	{
-		public int _thumbnailResolution = 16;
-		public int ThumbnailResolution
-		{
-			get => _thumbnailResolution;
-			set
-			{
-				if (_renderResolution != value)
-				{
-					_thumbnailResolution = value;
-					_mustCallInitialize = true;
-				}
-			}
-		}
-		public int _renderResolution = 64;
-		public int RenderResolution
-		{
-			get => _renderResolution;
-			set
-			{
-				if (_renderResolution != value)
-				{
-					_renderResolution = value;
-					_mustCallInitialize = true;
-				}
-			}
-		}
-
 		public float OverlayOpacity { get; set; } = 0f;
 		public CompositeOperator OverlayOperator { get; set; } = CompositeOperator.Over;
-		public TileImageCollection Tiles { get; }
 
-		private readonly TileGridRenderer _renderer;
-		private readonly TileGrid _tileGrid;
-		private bool _mustCallInitialize = true;
-		private MagickImage _mainImage;
+		public IProgress<MosaicProgress> Progress { get; init; }
+		public IEnumerable<string> Files { get; init; }
+		public TileImageMode TileMode { get; init; }
+		public string Main { get; init; }
 
-		public MosaicImage()
+		public int Resolution { get; init; }
+		public int Rows { get; init; }
+		public int Cols { get; init; }
+
+		public int Contrast { get; init; }
+		public int Brightness { get; init; }
+		public int Red { get; init; }
+		public int Green { get; init; }
+		public int Blue { get; init; }
+
+		public async Task<RenderResult> Render()
 		{
-			Tiles = new TileImageCollection();
-			_tileGrid = new TileGrid(Tiles);
-			_renderer = new TileGridRenderer(_tileGrid);
-		}
+			var renderStart = DateTime.Now;
 
-		public void SetTileMatcher(ITileMatcher matcher)
-		{
-			_tileGrid.TileMatcher = matcher ?? throw new ArgumentNullException(nameof(matcher));
-		}
+			ValidateParameters();
 
-		public void SetMainImage(MagickImage image)
-		{
-			_tileGrid.SetMainImage(image);
-			_mainImage = image;
-		}
+			Progress?.Report(new MosaicProgress("Loading"));
+			using var main = await LoadMainImageAsync();
+			await ApplyEffects(main);
 
-		public MagickImage RenderPreview(IProgress<MosaicProgress> progress = null) => InternalRender(progress, true);
+			var images = CreateTileImages();
+			await LoadTileImages(images);
 
-		public MagickImage Render(IProgress<MosaicProgress> progress = null) => InternalRender(progress, false);
+			Progress?.Report(new MosaicProgress("Finding matches"));
+			var grid = new TileGrid(images, main);
+			await grid.DetermineLocationsAsync();
+			var image = await Render(grid);
 
-		private MagickImage InternalRender(IProgress<MosaicProgress> progress, bool isPreview)
-		{
-			if (!Tiles.Any())
+			Progress?.Report(new MosaicProgress("Cleanup"));
+			images.ForEach(i => i.Dispose());
+
+			Progress?.Report(new MosaicProgress("Finished", 1));
+			return new RenderResult
 			{
-				throw new InvalidOperationException("No tile images available");
-			}
-
-			progress.Report(new MosaicProgress("Initializing"));
-			if (_mustCallInitialize)
-			{
-				Initialize();
-				_mustCallInitialize = false;
-			}
-
-			progress.Report(new MosaicProgress("Finding image positions"));
-			_tileGrid.DetermineLocations();
-
-			progress.Report(new MosaicProgress("Writing to disk"));
-			var render = _renderer.Render(isPreview, progress);
-
-			ApplyOverlay(render);
-			return render;
+				StartedAt = renderStart,
+				FinishedAt = DateTime.Now,
+				ImageStream = image,
+			};
 		}
 
-		private void ApplyOverlay(MagickImage image)
+		private void ValidateParameters()
 		{
-			if (OverlayOpacity == 0f)
-				return;
+			if (!Files.Any())
+				throw new InvalidOperationException("Missing images");
 
-			using var overlay = new MagickImage(_mainImage);
-			overlay.HasAlpha = true;
+			if (string.IsNullOrEmpty(Main))
+				throw new InvalidOperationException("Missing main image");
+		}
 
-			overlay.Resize(new MagickGeometry
+		private async Task<Stream> Render(TileGrid grid)
+		{
+			var renderer = new TileGridRenderer(grid, Resolution);
+			using var render = await renderer.RenderAsync(Progress);
+
+			Progress?.Report(new MosaicProgress("Writing"));
+
+			return await Task.Run(() =>
 			{
-				Width = image.Width,
-				Height = image.Height,
-				IgnoreAspectRatio = true,
+				var stream = new MemoryStream();
+				render.Write(stream, MagickFormat.Png);
+				return stream;
 			});
-
-			overlay.Evaluate(Channels.Alpha, EvaluateOperator.Multiply, OverlayOpacity);
-			image.Composite(overlay, OverlayOperator, Channels.All | Channels.Alpha);
 		}
 
-		public void Initialize()
+		private Task<MagickImage> LoadMainImageAsync()
 		{
-			_renderer.RenderResolution = RenderResolution;
-			_renderer.ThumbnailResolution = ThumbnailResolution;
-			InitializeTiles();
-		}
-
-		/// <summary>
-		/// (re)initialize all the tiles
-		/// </summary>
-		private void InitializeTiles()
-		{
-			foreach (var tile in Tiles)
+			return Task.Run(() =>
 			{
-				tile.Initialize(RenderResolution, ThumbnailResolution);
-			}
+				var main = new MagickImage(Main);
+				main.Resize(new MagickGeometry
+				{
+					IgnoreAspectRatio = true,
+					Width = Cols,
+					Height = Rows,
+				});
+
+				return main;
+			});
+		}
+
+		private List<TileImage> CreateTileImages()
+		{
+			return Files.Select(f => new TileImage(f)).ToList();
+		}
+
+		private Task LoadTileImages(IEnumerable<TileImage> images)
+		{
+			return Task.Run(() =>
+			{
+				Parallel.ForEach(images, tile =>
+				{
+					tile.Load(Resolution, TileMode);
+				});
+			});
+		}
+
+		public Task ApplyEffects(MagickImage image)
+		{
+			return Task.Run(() =>
+			{
+				image.Tint(0.5f.ToString(CultureInfo.InvariantCulture), new MagickColor((ushort)Red, (ushort)Green, (ushort)Blue));
+				image.BrightnessContrast(new Percentage(Brightness), new Percentage(Contrast));
+			});
 		}
 	}
 }

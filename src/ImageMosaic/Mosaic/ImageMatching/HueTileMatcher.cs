@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Mosaic.ImageMatching
 {
-	public class HueTileMatcher : ITileMatcher
+	class HueTileMatcher : ITileMatcher
 	{
 		private (int hue, TileImage tile)[] _tiles;
 

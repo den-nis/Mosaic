@@ -15,37 +15,34 @@ namespace Mosaic
 	{
 		public ITileMatcher TileMatcher { get; set; } = new DefaultTileMatcher();
 
-		private readonly TileImageCollection _tileCollection;
-		private TileImage[,] _grid;
-		private MagickImage _main = null;
+		private readonly IEnumerable<TileImage> _tiles;
+		private readonly TileImage[,] _grid;
+		private readonly MagickImage _main = null;
 
 		public TileImage this[int x, int y] => _grid[x, y];
 
 		public int Width => _grid.GetLength(0);
 		public int Height => _grid.GetLength(1);
 
-		private readonly HashSet<TileImage> _usedTiles = new HashSet<TileImage>();
+		private readonly HashSet<TileImage> _usedTiles = new();
 
-		public TileGrid(TileImageCollection tiles)
+		public TileGrid(IEnumerable<TileImage> tiles, MagickImage main)
 		{
-			_tileCollection = tiles;
+			_tiles = tiles;
+			_main = main;
+			_grid = new TileImage[main.Width, main.Height];
 		}
-
-		public void SetMainImage(MagickImage image)
-		{
-			_grid = new TileImage[image.Width, image.Height];
-			_main = image;
-		}
-
 		public bool ContainsTileImage(TileImage image)
 		{
 			return _usedTiles.Contains(image);
 		}
 
-		public void DetermineLocations()
+		public Task DetermineLocationsAsync() => Task.Run(() => DetermineLocations());
+
+		private void DetermineLocations()
 		{
 			_usedTiles.Clear();
-			TileMatcher.SetTiles(_tileCollection);
+			TileMatcher.SetTiles(_tiles);
 			using var pixels = _main.GetPixels();
 
 			for (int y = 0; y < _main.Height; y++)

@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+﻿using Mosaic.Progress;
 using Mosaic.UI.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -17,48 +17,46 @@ using System.Windows.Shapes;
 
 namespace Mosaic.UI
 {
-	/// <summary>
-	/// Interaction logic for MainWindow.xaml
-	/// </summary>
 	public partial class MainWindow : Window
 	{
-		public MosaicSettingsViewModel ViewModel { get; set; } = new MosaicSettingsViewModel();
+		public MainViewModel ViewModel { get; set; } 
 
 		public MainWindow()
 		{
 			InitializeComponent();
+
+			ViewModel = new MainViewModel(
+				ImagesControl.ViewModel,
+				EffectsControl.ViewModel,
+				CellsControl.ViewModel
+				);
+
+			ViewModel.OnPreviewReady += ViewModel_OnPreviewReady;
+			ViewModel.OnProgressChanged += ViewModel_OnProgressChanged;
+
 			DataContext = ViewModel;
 		}
 
-		private void ButtonOpenImages_Click(object sender, RoutedEventArgs e)
+		private void ViewModel_OnProgressChanged(MosaicProgress progress)
 		{
-			var dialog = new OpenFileDialog
-			{
-				Multiselect = true,
-				Title = "Open images"
-			};
-
-			if (dialog.ShowDialog() == true)
-			{
-				ViewModel.OpenImages(dialog.FileNames);
-			}
+			LabelStatusText.Content = progress.Name;
+			ProgressBarPreview.Value = progress.Percentage * 100;
 		}
 
-		private void ButtonSetAsMain_Click(object sender, RoutedEventArgs e)
+		private void ViewModel_OnPreviewReady(BitmapFrame image)
 		{
-			if (ListBoxImages.SelectedItem is ImageViewModel imageModel)
-			{
-				ViewModel.SetMainImage(imageModel);
-			}
+			Dispatcher.Invoke(() => ImagePreview.Source = image);
 		}
 
-		private void ButtonRemove_Click(object sender, RoutedEventArgs e)
+		private void ButtonRender_Click(object sender, RoutedEventArgs e)
 		{
-			if (ListBoxImages.SelectedItem is ImageViewModel imageModel)
-			{
-				ViewModel.RemoveImage(imageModel);
-				ListBoxImages.SelectedIndex = 0;
-			}
+			ImagePreview.Source = null;
+			ViewModel.StartPreviewRender();
+		}
+
+		private void ButtonSave_Click(object sender, RoutedEventArgs e)
+		{
+
 		}
 	}
 }

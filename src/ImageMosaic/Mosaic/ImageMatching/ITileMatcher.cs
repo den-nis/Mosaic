@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Mosaic.ImageMatching
 {
-	public interface ITileMatcher
+	interface ITileMatcher
 	{
 		void SetTiles(IEnumerable<TileImage> tiles);
 

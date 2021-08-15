@@ -10,8 +10,13 @@ using System.Threading.Tasks;
 
 namespace Mosaic.UI.ViewModels
 {
-	public class ImageViewModel : INotifyPropertyChanged, IEquatable<ImageViewModel>
+	public class ImageViewModel : ViewModelBase, IEquatable<ImageViewModel>
 	{
+		public ImageViewModel(string fullPath)
+		{
+			Fullpath = fullPath;
+		}
+
 		private string _fullpath;
 		public string Fullpath
 		{
@@ -39,13 +44,10 @@ namespace Mosaic.UI.ViewModels
 		public string Filename => Path.GetFileName(Fullpath);
 		public string Tag => IsMainImage ? "Main" : string.Empty;
 
-		public event PropertyChangedEventHandler PropertyChanged;
+		public bool Equals(ImageViewModel other) => Fullpath == other?.Fullpath;
 
-		private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-		}
+		public override bool Equals(object obj) => Equals(obj as ImageViewModel);
 
-		public bool Equals(ImageViewModel other) => Fullpath == other.Fullpath;
+		public override int GetHashCode() => Fullpath.GetHashCode();
 	}
 }

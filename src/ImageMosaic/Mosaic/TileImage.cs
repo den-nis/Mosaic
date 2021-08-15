@@ -1,45 +1,47 @@
 ﻿using ImageMagick;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Mosaic
 {
-	public class TileImage : IDisposable
+	class TileImage : IDisposable
 	{
-		public TileImageMode TileMode { get; set; } = TileImageMode.Center;
 		public MagickColor Color { get; private set; }
+		public MagickImage Image { get; private set; }
+		public int Resolution => Image?.Width ?? -1;
 
-		private readonly string _imagePath;
+		public string ImagePath { get; private set; }
+		private bool _isLoaded = false;
 
 		public TileImage(string imagePath)
 		{
-			_imagePath = imagePath;
+			ImagePath = imagePath;
 		}
 
-		public MagickImage Thumbnail { get; private set; }
-		public MagickImage Image { get; private set; }
-
-		public void Initialize(int renderResolution, int thumbnailResolution)
+		public void Load(int resolution, TileImageMode tileMode = TileImageMode.Center)
 		{
-			Image = Render(renderResolution);
-			Thumbnail = Render(thumbnailResolution);
-			
+			if (_isLoaded) throw new InvalidOperationException("TileImage is already loaded");
+			_isLoaded = true;
+
+			Image = LoadImage(resolution, tileMode);
+
 			ComputeAverageColor(Image);
 		}
 
-		private MagickImage Render(int resolution)
+		private MagickImage LoadImage(int resolution, TileImageMode tileMode)
 		{
-			var image = new MagickImage(_imagePath);
-			ToSquare(image, resolution);
+			var image = new MagickImage(ImagePath);
+			ToSquare(image, resolution, tileMode);
 			return image;
 		}
 
-		private void ToSquare(MagickImage target, int size)
+		private static void ToSquare(MagickImage target, int size, TileImageMode tileMode)
 		{
-			target.ConvertToSquare(TileMode);
+			target.ConvertToSquare(tileMode);
 			target.Resize(size, size);
 		}
 
@@ -50,7 +52,7 @@ namespace Mosaic
 
 		public void Dispose()
 		{
-			Image.Dispose();
+			Image?.Dispose();
 			GC.SuppressFinalize(this);
 		}
 	}
