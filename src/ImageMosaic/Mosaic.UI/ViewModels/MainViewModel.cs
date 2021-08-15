@@ -21,7 +21,7 @@ namespace Mosaic.UI.ViewModels
 		public bool Busy { get; set; }
 
 		public event Action<MosaicProgress> OnProgressChanged;
-		public event Action<BitmapFrame> OnPreviewReady;
+		public event Action<BitmapFrame, Stream> OnPreviewReady;
 
 		private readonly ImagesViewModel _imagesVm;
 		private readonly EffectsViewModel _effectsVm;
@@ -86,7 +86,7 @@ namespace Mosaic.UI.ViewModels
 			return Task.Run(() =>
 			{
 				var bitmap = BitmapFrame.Create(image, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-				OnPreviewReady?.Invoke(bitmap);
+				OnPreviewReady?.Invoke(bitmap, image);
 			});
 		}
 	}

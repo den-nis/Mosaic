@@ -8,16 +8,10 @@ using System.Threading.Tasks;
 
 namespace Mosaic
 {
-	public class RenderResult : IDisposable
+	public class RenderResult
 	{
 		public DateTime StartedAt { get; internal set; }
 		public DateTime FinishedAt { get; internal set; }
 		public Stream ImageStream { get; internal set; }
-
-		public void Dispose()
-		{
-			ImageStream.Dispose();
-			GC.SuppressFinalize(this);
-		}
 	}
 }
