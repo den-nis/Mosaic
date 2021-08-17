@@ -28,7 +28,10 @@ namespace Mosaic.UI.ViewModels
 				}
 			}
 
-			SetFirstAsMain();
+			if (!_images.Any(i => i.IsMainImage))
+			{
+				SetFirstAsMain();
+			}
 		}
 
 		public void RemoveImage(ImageViewModel viewModel)
