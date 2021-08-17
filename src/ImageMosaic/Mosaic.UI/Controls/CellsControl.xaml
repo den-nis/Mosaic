@@ -14,7 +14,7 @@
 		<Label>Rows:</Label>
 		<Slider Minimum="4" Maximum="200" TickFrequency="4" Value="{Binding Path=Rows}"/>
 		<Label>Resolution:</Label>
-		<Slider Minimum="8" Maximum="256" TickFrequency="8" Value="{Binding Path=Resolution}"/>
+		<Slider Minimum="8" Maximum="64" TickFrequency="8" Value="{Binding Path=Resolution}"/>
 		<Label>Info:</Label>
 		<Label Margin="20,0,0,0" Content="{Binding Path=Info}"/>
 	</StackPanel>
