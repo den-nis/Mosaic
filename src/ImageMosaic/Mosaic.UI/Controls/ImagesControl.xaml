@@ -21,7 +21,7 @@
 			<Button Margin="10" Grid.Column="2" Click="ButtonRemove_Click">Remove</Button>
 		</Grid>
 
-		<ListBox Margin="10,10,10,0" ItemsSource="{Binding Path=Images, UpdateSourceTrigger=PropertyChanged}" x:Name="ListBoxImages">
+		<ListBox SelectionMode="Extended" Margin="10,10,10,0" ItemsSource="{Binding Path=Images, UpdateSourceTrigger=PropertyChanged}" x:Name="ListBoxImages">
 			<ListBox.ItemTemplate>
 				<DataTemplate>
 					<DockPanel>

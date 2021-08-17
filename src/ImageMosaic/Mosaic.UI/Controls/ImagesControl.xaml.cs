@@ -51,12 +51,15 @@ namespace Mosaic.UI.Controls
 
 		private void ButtonRemove_Click(object sender, RoutedEventArgs e)
 		{
-			if (ListBoxImages.SelectedItem is ImageViewModel imageModel)
+			var previousIndex = ListBoxImages.SelectedIndex;
+			var images = ListBoxImages.SelectedItems.Cast<ImageViewModel>().ToList();
+
+			foreach (ImageViewModel image in images)
 			{
-				var previousIndex = ListBoxImages.SelectedIndex;
-				ViewModel.RemoveImage(imageModel);
-				ListBoxImages.SelectedIndex = previousIndex;
+				ViewModel.RemoveImage(image);
 			}
+
+			ListBoxImages.SelectedIndex = previousIndex;
 		}
 	}
 }
