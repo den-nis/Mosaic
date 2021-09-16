@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Mosaic
 {
-	public enum TileImageMode
+	public enum CropMode
 	{
 		Stretch,
 		Center,

@@ -8,6 +8,9 @@ namespace Mosaic.Progress
 {
 	public record MosaicProgress
 	{
+		public string Name { get; set; }
+		public float Percentage { get; set; }
+
 		public MosaicProgress(string name, float percentage)
 		{
 			Name = name;
@@ -19,9 +22,6 @@ namespace Mosaic.Progress
 			Name = name;
 			Percentage = -1f;
 		}
-
-		public string Name { get; set; }
-		public float Percentage { get; set; }
 
 		public override string ToString()
 		{
