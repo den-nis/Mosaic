@@ -55,7 +55,6 @@ namespace Mosaic
 
         public float Nearest(int x, int y, int radius, TileSource source)
         {
-            object nearestLock = new object();
             float nearest = float.MaxValue;
 
             if (_useGridSearch)
