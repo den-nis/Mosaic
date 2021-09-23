@@ -12,7 +12,7 @@ namespace Mosaic
 	/// </summary>
 	record TileUsage : IEquatable<TileUsage>
 	{
-		public TileSource Source { get; init; }
+		public Tile Source { get; init; }
 		public int Rotation { get; init; }
 		public bool Mirrored { get; init; }
 		public int X { get; init; }

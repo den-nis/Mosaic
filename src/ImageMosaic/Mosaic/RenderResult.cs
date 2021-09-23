@@ -13,17 +13,18 @@ namespace Mosaic
 	{
 		public DateTime StartedAt { get; private set; }
 		public DateTime FinishedAt { get; private set; }
-		public ResultPicture Picture { get; private set; }
-		public Dictionary<TileSource, int> TileUsageOverview { get; private set; }
+		public Dictionary<string, int> TileUsageOverview { get; private set; }
 
-		internal static RenderResult Build(DateTime startedAt, IPicture picture, TileSources sources)
+		private IPicture _picture;
+
+		internal static RenderResult Build(DateTime startedAt, IPicture picture, TileSet set)
 		{
 			return new RenderResult()
 			{
 				StartedAt = startedAt,
 				FinishedAt = DateTime.Now,
-				Picture = new ResultPicture(picture),
-				TileUsageOverview = sources.ToDictionary(k => k, v => v.TimesUsed),
+				_picture = picture,
+				TileUsageOverview = set.Tiles.ToDictionary(k => k.Source.Identifier, v => v.TimesUsed),
 			};
 		}
 
@@ -32,9 +33,13 @@ namespace Mosaic
 
 		}
 
+		public void Write(string path) => _picture.Write(path);
+		
+		public void Write(Stream stream) => _picture.Write(stream);
+		
 		public void Dispose()
 		{
-			Picture.Dispose();
+			_picture.Dispose();
 		}
 	}
 }

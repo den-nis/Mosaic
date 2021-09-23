@@ -1,6 +1,6 @@
-﻿using Mosaic.Graphics.Backend;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,9 +14,9 @@ namespace Mosaic.Graphics
 			return new MagickPicture(width, height);
 		}
 
-		public static IPicture Open(string filename)
+		public static IPicture Open(Stream stream)
 		{
-			return new MagickPicture(filename);
+			return new MagickPicture(stream);
 		}
 	}
 }

@@ -21,7 +21,7 @@ namespace Mosaic
         private readonly bool _useGridSearch;
 
         private TileUsage[,] _grid;
-        private Dictionary<TileSource, List<TileUsage>> _byTileSource = new();
+        private Dictionary<Tile, List<TileUsage>> _byTileSource = new();
 
         public Grid(int width, int height, bool useGridSearch)
         {
@@ -53,7 +53,7 @@ namespace Mosaic
             AddToLookup(_grid[x, y]);
         }
 
-        public float Nearest(int x, int y, int radius, TileSource source)
+        public float Nearest(int x, int y, int radius, Tile source)
         {
             float nearest = float.MaxValue;
 
@@ -102,7 +102,7 @@ namespace Mosaic
         /// Ignores everything greater than "y".
         /// Should be used for finding duplicates when filling the grid linearly top to bottom
         /// </summary>
-        private float FindNearestGrid(int x, int y, int radius, TileSource source)
+        private float FindNearestGrid(int x, int y, int radius, Tile source)
         {
             if (radius == 0)
                 return float.MaxValue;

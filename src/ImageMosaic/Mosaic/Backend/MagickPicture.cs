@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Mosaic.Graphics.Backend
+namespace Mosaic
 {
 	internal class MagickPicture : IPicture
 	{
@@ -19,6 +19,11 @@ namespace Mosaic.Graphics.Backend
 		public MagickPicture(MagickPicture copy)
 		{
 			_internalImage = new MagickImage(copy._internalImage);
+		}
+
+		public MagickPicture(Stream stream)
+		{
+			_internalImage = new MagickImage(stream);
 		}
 
 		public MagickPicture(string filename)
@@ -75,7 +80,7 @@ namespace Mosaic.Graphics.Backend
 					else
 					{
 						var pixel = pixels[centerX, centerY].ToColor();
-						color = Color.FromByteArray(pixel.ToByteArray());
+						color = new Color(pixel.R, pixel.G, pixel.B);
 					}
 
 					result.Add(new Sample(centerX - offsetX, centerY - offsetY, color));
@@ -163,9 +168,9 @@ namespace Mosaic.Graphics.Backend
 			});
 		}
 
-		public void WriteToStream(Stream stream)
+		public void Write(Stream stream)
 		{
-			_internalImage.Write(stream);
+			_internalImage.Write(stream, MagickFormat.Png);
 		}
 
 		public void Write(string file)

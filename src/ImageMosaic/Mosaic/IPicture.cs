@@ -1,5 +1,4 @@
 ﻿using ImageMagick;
-using Mosaic.Graphics.Backend;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Mosaic.Graphics
+namespace Mosaic
 {
 	/// <summary>
 	/// Class that represents an image
@@ -17,7 +16,7 @@ namespace Mosaic.Graphics
 		int Width { get; }
 		int Height { get; }
 
-		void WriteToStream(Stream stream);
+		void Write(Stream stream);
 
 		void Write(string file);
 

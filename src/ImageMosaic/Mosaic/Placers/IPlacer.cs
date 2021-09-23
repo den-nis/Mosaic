@@ -15,6 +15,6 @@ namespace Mosaic.Placers
 
 		void SetBuffer(PlaceOption[] bufer);
 
-		void FillOptions(int index, TileSource source);
+		void FillOptions(int index, Tile source);
 	}
 }

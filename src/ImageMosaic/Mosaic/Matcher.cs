@@ -18,19 +18,19 @@ namespace Mosaic
 	/// <summary>
 	/// Places the pictures on the right spots
 	/// </summary>
-	class Matcher
+	internal class Matcher
 	{
 		public IProgress<TileProgress> TileProgress { get; set; }
 
 		private readonly RenderSettings _settings;
 		private readonly Grid _grid;
-		private readonly TileSources _sources;
+		private readonly TileSet _sources;
 		private readonly IPicture _main;
 
-		private TileSource[] _sourcesArray;
+		private Tile[] _tileArray;
 		private Dictionary<(int x, int y), List<PlaceOption>> _targets = new();
 
-		public Matcher(Grid grid, TileSources sources, IPicture main, RenderSettings settings)
+		public Matcher(Grid grid, TileSet sources, IPicture main, RenderSettings settings)
 		{
 			_settings = settings;
 			_sources = sources;
@@ -54,7 +54,7 @@ namespace Mosaic
 			return Task.Run(() =>
 			{
 				_main.CachePixels();
-				_sourcesArray = _sources.ToArray();
+				_tileArray = _sources.Tiles.ToArray();
 
 				for (int y = 0; y < _grid.Height; y++)
 				{
@@ -102,12 +102,12 @@ namespace Mosaic
 			var mainSample = SetupMainSample(x, y);
 			placer.SetMainSample(mainSample);
 
-			PlaceOption[] buffer = new PlaceOption[_sourcesArray.Length * placer.Size];
+			PlaceOption[] buffer = new PlaceOption[_tileArray.Length * placer.Size];
 			placer.SetBuffer(buffer);
 
-			Parallel.For(0, _sourcesArray.Length, i => 
+			Parallel.For(0, _tileArray.Length, i => 
 			{
-				placer.FillOptions(i * placer.Size, _sourcesArray[i]);
+				placer.FillOptions(i * placer.Size, _tileArray[i]);
 			});
 
 			return buffer;

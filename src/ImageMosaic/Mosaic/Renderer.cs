@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Mosaic
 {
-	class Renderer
+	internal class Renderer
 	{
 		private readonly int _resolution;
 		private readonly Grid _grid;

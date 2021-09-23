@@ -14,7 +14,7 @@ namespace Mosaic.Placers
 		private PlaceOption[] _buffer;
 		private SampleSet[] _main;
 
-		public void FillOptions(int index, TileSource source)
+		public void FillOptions(int index, Tile source)
 		{
 			for (int i = 0; i < _main.Length; i++)
 			{
