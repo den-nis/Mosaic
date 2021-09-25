@@ -84,6 +84,7 @@ namespace Mosaic
 				.First();
 
 			_grid.SetTile(choice, x, y);
+			choice.Source.TimesUsed++;
 		}
 
 		private void FillDistances(PlaceOption[] suggestions, int x, int y)

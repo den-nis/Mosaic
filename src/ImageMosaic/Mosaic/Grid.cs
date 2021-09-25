@@ -11,7 +11,7 @@ using Mosaic.Placers;
 
 namespace Mosaic
 {
-    class Grid
+    internal class Grid
     {
         public TileUsage this[int x, int y] => _grid[x, y];
 

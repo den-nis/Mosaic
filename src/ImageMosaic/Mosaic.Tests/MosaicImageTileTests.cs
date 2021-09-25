@@ -331,7 +331,7 @@ namespace Mosaic.Tests
 			await mosaic.SetMainImageAsync(new PictureSourceStream(mainStream, "Main"));
 
 			using MemoryStream result = new();
-			(await mosaic.RenderAsync()).Write(result);
+			(await mosaic.RenderAsync(null)).Write(result);
 			result.Position = 0;
 
 			ImageMock mock = new();

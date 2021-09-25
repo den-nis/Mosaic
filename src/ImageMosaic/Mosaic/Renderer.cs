@@ -38,7 +38,6 @@ namespace Mosaic
 						{
 							using var copy = _grid[x, y].Source.Picture.Copy();
 
-							_grid[x, y].Source.TimesUsed++; //TODO: different place maybe?
 							if (_grid[x, y].Mirrored)
 							{
 								copy.Mirror();

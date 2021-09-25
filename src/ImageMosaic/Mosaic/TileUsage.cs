@@ -10,7 +10,7 @@ namespace Mosaic
 	/// <summary>
 	/// Represents a tile placed in the grid
 	/// </summary>
-	record TileUsage : IEquatable<TileUsage>
+	internal record TileUsage : IEquatable<TileUsage>
 	{
 		public Tile Source { get; init; }
 		public int Rotation { get; init; }

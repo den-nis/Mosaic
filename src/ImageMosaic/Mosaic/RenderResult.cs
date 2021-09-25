@@ -13,7 +13,11 @@ namespace Mosaic
 	{
 		public DateTime StartedAt { get; private set; }
 		public DateTime FinishedAt { get; private set; }
+		public TimeSpan Time => FinishedAt - StartedAt;
 		public Dictionary<string, int> TileUsageOverview { get; private set; }
+
+		public int TotalPictures { get; private set; } 
+		public int UsedPictures { get; private set; } 
 
 		private IPicture _picture;
 
@@ -25,6 +29,8 @@ namespace Mosaic
 				FinishedAt = DateTime.Now,
 				_picture = picture,
 				TileUsageOverview = set.Tiles.ToDictionary(k => k.Source.Identifier, v => v.TimesUsed),
+				TotalPictures = set.Tiles.Count(),
+				UsedPictures = set.Tiles.Where(t => t.TimesUsed > 0).Count()
 			};
 		}
 
