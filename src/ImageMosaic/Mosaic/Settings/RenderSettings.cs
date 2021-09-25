@@ -17,7 +17,7 @@ namespace Mosaic.Settings
 		/// Instead of one pixel it will be the average of the pixels around it.
 		/// Is a lot slower but will give better results
 		/// </summary>
-		public bool UseAverageSamples { get; set; }
+		public bool UseAverageSamples { get; init; }
 
 		/// <summary>
 		/// Within this radius pictures should not repeat but might do if there is no alternative tile

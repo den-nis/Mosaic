@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Threading;
 
 namespace Mosaic
 {
@@ -20,8 +21,6 @@ namespace Mosaic
 		private readonly RenderSettings _settings;
 		private Stream _mainPictureStream;
 		private IPicture _mainPicture;
-		public IProgress<MosaicProgress> StepProgress { get; set; }
-		public IProgress<TileProgress> TileProgress { get; set; }
 
 		public MosaicImage(TileSet sources, RenderSettings settings)
 		{
@@ -44,8 +43,13 @@ namespace Mosaic
 			});
 		}
 
-		public async Task<RenderResult> RenderAsync()
+		public async Task<RenderResult> RenderAsync(IProgress<MosaicProgress> progress, IProgress<TileProgress> tileProgress)
 		{
+			if (_mainPicture == null)
+			{
+				throw new InvalidOperationException($"Missing main image. call {nameof(SetMainImageAsync)}()");
+			}
+
 			var startedAt = DateTime.Now;
 			_set.ResetMetadata();
 
@@ -53,22 +57,23 @@ namespace Mosaic
 			Matcher matcher = new(grid, _set, _mainPicture, _settings);
 			Renderer renderer = new Renderer(grid, _settings.Resolution);
 
-			matcher.TileProgress = TileProgress;
-			await LoadSamplesAsync();
-			await matcher.FindMatchesAsync();
-			var render = await renderer.RenderAsync();
+			await LoadSamplesAsync(progress);
+			await matcher.FindMatchesAsync(progress);
+			var render = await renderer.RenderAsync(progress);
 
 			return RenderResult.Build(startedAt, render, _set);
 		}
 
-		private Task LoadSamplesAsync()
+		private Task LoadSamplesAsync(IProgress<MosaicProgress> stepProgress)
 		{
 			return Task.Run(() =>
 			{
-				StepProgress?.Report(new MosaicProgress("Indexing"));
+				int total = _set.Tiles.Count();
+				int current = 0;
 				Parallel.ForEach(_set.Tiles, source =>
 				{
 					source.LoadSamples(_settings.SamplesPerTile, _settings.UseAverageSamples);
+					stepProgress?.Report(new MosaicProgress("Indexing", (float)Interlocked.Increment(ref current) / total));
 				});
 			});
 		}

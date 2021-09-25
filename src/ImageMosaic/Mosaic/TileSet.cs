@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Mosaic
 {
-	public class TileSet
+	public class TileSet : IDisposable
 	{
 		public int Resolution { get; }
 		public CropMode CropMode { get; }
@@ -84,6 +84,14 @@ namespace Mosaic
 				{
 					yield return item;
 				}
+			}
+		}
+
+		public void Dispose()
+		{
+			foreach(var tile in Tiles)
+			{
+				tile?.Dispose();
 			}
 		}
 	}

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Mosaic
 {
-	internal class Tile : IEquatable<Tile>, IComparable<Tile>
+	internal class Tile : IEquatable<Tile>, IComparable<Tile>, IDisposable
 	{
 		public PictureSource Source { get; set; }
 
@@ -50,7 +50,7 @@ namespace Mosaic
 			sourceStream.Position = 0;
 
 			IPicture picture = PictureFactory.Open(sourceStream);
-			picture.ApplyCropMode(crop); //TODO: fix
+			picture.ApplyCropMode(crop);
 			picture.Resize(resolution, resolution);
 			Picture = picture;
 		}
@@ -62,5 +62,10 @@ namespace Mosaic
 		public override int GetHashCode() => Source.GetHashCode();
 
 		public int CompareTo(Tile other) => Source.CompareTo(other.Source);
+
+		public void Dispose()
+		{
+			_picture?.Dispose();
+		}
 	}
 }

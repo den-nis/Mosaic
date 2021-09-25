@@ -20,20 +20,19 @@ namespace Mosaic
 	/// </summary>
 	internal class Matcher
 	{
-		public IProgress<TileProgress> TileProgress { get; set; }
-
 		private readonly RenderSettings _settings;
 		private readonly Grid _grid;
-		private readonly TileSet _sources;
+		private readonly TileSet _set;
 		private readonly IPicture _main;
 
+		private int _repeatRadius;
 		private Tile[] _tileArray;
 		private Dictionary<(int x, int y), List<PlaceOption>> _targets = new();
 
 		public Matcher(Grid grid, TileSet sources, IPicture main, RenderSettings settings)
 		{
 			_settings = settings;
-			_sources = sources;
+			_set = sources;
 			_grid = grid;
 			_main = main;
 
@@ -49,15 +48,18 @@ namespace Mosaic
 		/// <summary>
 		/// Find matches and places them on the grid
 		/// </summary>
-		public Task FindMatchesAsync()
+		public Task FindMatchesAsync(IProgress<MosaicProgress> progress)
 		{
+			_repeatRadius = GetRepeatRadius();
+
 			return Task.Run(() =>
 			{
 				_main.CachePixels();
-				_tileArray = _sources.Tiles.ToArray();
+				_tileArray = _set.Tiles.ToArray();
 
 				for (int y = 0; y < _grid.Height; y++)
 				{
+					progress?.Report(new MosaicProgress("Finding matches", (y + 1f) / _grid.Height));
 					for (int x = 0; x < _grid.Width; x++)
 					{
 						HandleTile(x, y);
@@ -73,8 +75,6 @@ namespace Mosaic
 			var suggestions = GetOptions(x, y);
 			FillDistances(suggestions, x, y);
 			PlaceTile(suggestions, x, y);
-
-			TileProgress?.Report(new TileProgress(x, y));
 		}
 
 		private void PlaceTile(PlaceOption[] suggestions, int x, int y)
@@ -91,7 +91,7 @@ namespace Mosaic
 		{
 			for (int i = 0; i < suggestions.Length; i++)
 			{
-				float distance = _grid.Nearest(x, y, _settings.RepeatRadius, suggestions[i].Source);
+				float distance = _grid.Nearest(x, y, _repeatRadius, suggestions[i].Source);
 				suggestions[i].RepeatDistance = distance;
 			}
 		}
@@ -117,12 +117,32 @@ namespace Mosaic
 		{
 			var samples = _main.ComputeSamples(_settings.SamplesPerTile,
 				_settings.UseAverageSamples,
-				_sources.Resolution,
-				x * _sources.Resolution,
-				y * _sources.Resolution
+				_set.Resolution,
+				x * _set.Resolution,
+				y * _set.Resolution
 			);
 
-			return new SampleSet(samples, _sources.Resolution);
+			return new SampleSet(samples, _set.Resolution);
+		}
+
+		private int GetRepeatRadius()
+		{
+			if (_settings.RepeatRadius == -1)
+			{
+				var maxRadius = Math.Sqrt(
+					_settings.Rows * _settings.Rows +
+					_settings.Columns * _settings.Columns
+				);
+
+				var tiles = _set.Tiles.Count();
+				var spots = _settings.Rows * _settings.Columns;
+
+				return (int)Math.Round(Math.Min(((float)tiles / spots) * 25f, maxRadius));
+			}
+			else
+			{
+				return _settings.RepeatRadius;
+			}
 		}
 	}
 }

@@ -21,7 +21,7 @@ namespace Mosaic
 			_resolution = resolution;
 		}
 
-		public Task<IPicture> RenderAsync()
+		public Task<IPicture> RenderAsync(IProgress<MosaicProgress> progress)
 		{
 			return Task.Run(() =>
 			{
@@ -29,6 +29,7 @@ namespace Mosaic
 
 				for (int y = 0; y < _grid.Height; y++)
 				{
+					progress?.Report(new MosaicProgress("Rendering", (y + 1f) / _grid.Height));
 					for (int x = 0; x < _grid.Width; x++)
 					{
 						bool altered = _grid[x, y].Mirrored || _grid[x, y].Rotation != 0;
