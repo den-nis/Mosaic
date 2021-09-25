@@ -43,7 +43,7 @@ namespace Mosaic
 			});
 		}
 
-		public async Task<RenderResult> RenderAsync(IProgress<MosaicProgress> progress, IProgress<TileProgress> tileProgress)
+		public async Task<RenderResult> RenderAsync(IProgress<MosaicProgress> progress)
 		{
 			if (_mainPicture == null)
 			{

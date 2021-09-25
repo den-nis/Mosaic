@@ -11,7 +11,6 @@ using System.Collections.Concurrent;
 using Mosaic.Placers;
 using ImageMagick;
 using Mosaic.Progress;
-using static Mosaic.Progress.TileProgress;
 
 namespace Mosaic
 {
