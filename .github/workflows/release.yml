@@ -1,0 +1,39 @@
+name: .NET
+
+on:
+  workflow_dispatch:
+  
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build CLI
+      run: dotnet publish src/ImageMosaic/Mosaic.CLI/ -c Release -p:PublishSingleFile=true -r win-x64 -p:PublishTrimmed=true -p:IncludeNativeLibrariesForSelfExtract=true -o Publish/CLI
+    - name: Build GUI
+      run: dotnet publish src/ImageMosaic/Mosaic.GUI/ -c Release -p:IncludeSymbols=false -p:PublishSingleFile=true -r win-x64 -o Publish/GUI
+    - name: Test
+      run: dotnet test
+    - name: Create Artifact
+      uses: TheDoctor0/zip-release@0.6.0
+      with:
+        filename: release.zip
+        path: Publish
+    - name: Create release
+      uses: ncipollo/release-action@v1.8.10
+      with:
+        tag: v1.0
+        allowUpdates: true
+        artifact: release.zip
+        
+      
+      
+    
