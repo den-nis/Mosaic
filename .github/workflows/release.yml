@@ -25,7 +25,7 @@ jobs:
       uses: TheDoctor0/zip-release@0.6.0
       with:
         filename: release.zip
-        path: Publish
+        path: Publish/
     - name: Create release
       uses: ncipollo/release-action@v1.8.10
       with:
