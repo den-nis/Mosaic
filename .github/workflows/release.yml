@@ -1,11 +1,10 @@
-name: .NET
+name: Release
 
 on:
   workflow_dispatch:
   
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -15,7 +14,7 @@ jobs:
       with:
         dotnet-version: 5.0.x
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore src/ImageMosaic/
     - name: Build CLI
       run: dotnet publish src/ImageMosaic/Mosaic.CLI/ -c Release -p:PublishSingleFile=true -r win-x64 -p:PublishTrimmed=true -p:IncludeNativeLibrariesForSelfExtract=true -o Publish/CLI
     - name: Build GUI
