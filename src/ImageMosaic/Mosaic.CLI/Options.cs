@@ -24,11 +24,8 @@ namespace Mosaic.CLI
 		[Option('f', "filter", Default = "*.*", HelpText = "The search string to match against the names of files in the input path")]
 		public string Filter { get; set; }
 
-		[Option('c', "columns", Default = 30, HelpText = "Amount of horizontal tiles")]
-		public int Columns { get; set; }
-
-		[Option('r', "rows",    Default = 30, HelpText = "Amount of vertical tiles")]
-		public int Rows { get; set; }
+		[Option('s', "size", Default = 1, HelpText = "Multiplier for the grid size. 0.5 = 2 tile per pixel")]
+		public float Size { get; set; }
 
 		[Option('R', "rotate",  Default = false, HelpText = "Enable tile rotation")]
 		public bool UseRotation { get; set; }
@@ -36,7 +33,7 @@ namespace Mosaic.CLI
 		[Option('M', "mirror", Default = false, HelpText = "Enable tile mirroring")]
 		public bool UseMirror { get; set; }
 
-		[Option('s', "samples", Default = 4, HelpText = "Amount of color samples per tile")]
+		[Option('S', "samples", Default = 4, HelpText = "Amount of color samples per tile")]
 		public int SamplesPerTile { get; set; }
 
 		[Option("resolution", Default = 45, HelpText = "The width and height of the tiles")]
@@ -52,6 +49,6 @@ namespace Mosaic.CLI
 		public bool UseGridSearch { get; set; }
 
 		[Option("cropMode", Default = CropMode.Center, HelpText = "Method for cropping the tile images if they are not square. (Center, Stretch)")]
-		public CropMode Crop { get; set; }
+		public CropMode CropMode { get; set; }
 	}
 }

@@ -6,20 +6,21 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Mosaic.CLI
 { 
-	class Program
+	internal class Program
 	{
 		private static readonly MapperConfiguration _mapperConfig = new(cfg => cfg.CreateMap<Options, RenderSettings>());
 
-		static async Task Main(string[] args)
+		static void Main(string[] args)
 		{
-			await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(Run);
+			Parser.Default.ParseArguments<Options>(args).WithParsed(Run);
 		}
 
-		static async Task Run(Options options)
+		static void Run(Options options)
 		{
 			var progress = new ConsoleProgress();
 			Console.WriteLine();
@@ -27,13 +28,11 @@ namespace Mosaic.CLI
 			var searchOption = options.AllDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
 			var files = Directory.GetFiles(options.Input, options.Filter, searchOption);
 
-			using TileSet set = new TileSet(options.Resolution, options.Crop);
-			await set.LoadTilesAsync(files.Select(f => new PictureSourceFile(f)), progress);
+			MosaicImage mosaic = new MosaicImage(MapRenderSettings(options));
+			mosaic.MainPicture = new PictureSourceFile(options.Main);
+			mosaic.TilePictures = files.Select(f => new PictureSourceFile(f));
 
-			MosaicImage mosaic = new MosaicImage(set, MapRenderSettings(options));
-			await mosaic.SetMainImageAsync(new PictureSourceFile(options.Main));
-			var result = await mosaic.RenderAsync(progress);
-
+			var result = mosaic.Render(progress, CancellationToken.None);
 			result.Write(options.Output);
 
 			Console.WriteLine();
