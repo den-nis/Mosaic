@@ -15,7 +15,7 @@ namespace Mosaic.CLI
 		public void WriteBuffer(string str)
 		{
 			int currentBufferSize = str.Length;
-			var padding = new string(' ', Math.Max(_lastBufferSize - currentBufferSize, 0));
+			string padding = new string(' ', Math.Max(_lastBufferSize - currentBufferSize, 0));
 			_lastBufferSize = currentBufferSize;
 
 			Console.Write($"{str}{padding}\r");
