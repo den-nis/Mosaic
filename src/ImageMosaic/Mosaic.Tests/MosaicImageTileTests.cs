@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Mosaic;
 using Mosaic.Graphics;
 using Mosaic.Settings;
+using Mosaic.Tests;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,12 +16,11 @@ namespace Mosaic.Tests
 	public class MosaicImageTileTests
 	{
 		[TestMethod]
-		public async Task TestMirror()
+		public void TestMirror()
 		{
 			RenderSettings settings = new RenderSettings
 			{
-				Columns = 1,
-				Rows = 1,
+				Size = .5f,
 				UseMirror = true,
 				SamplesPerTile = 4,
 				Resolution = 2,
@@ -40,17 +41,16 @@ namespace Mosaic.Tests
 				"BB"
 			);
 
-			using ImageMock result = await QuickRender(tileImage, mainImage, settings);
+			using ImageMock result = QuickRender(tileImage, mainImage, settings);
 			result.AssertEquals(expectedImage);
 		}
 
 		[TestMethod]
-		public async Task TestMirrorAndRotation()
+		public void TestMirrorAndRotation()
 		{
 			RenderSettings settings = new RenderSettings
 			{
-				Columns = 1,
-				Rows = 1,
+				Size = 1.0f / 3.0f,
 				UseMirror = true,
 				UseRotation = true,
 				SamplesPerTile = 9,
@@ -75,17 +75,16 @@ namespace Mosaic.Tests
 				" BB"
 			);
 
-			using ImageMock result = await QuickRender(tileImage, mainImage, settings);
+			using ImageMock result = QuickRender(tileImage, mainImage, settings);
 			result.AssertEquals(expectedImage);
 		}
 
 		[TestMethod]
-		public async Task TestRightRotation()
+		public void TestRightRotation()
 		{
 			RenderSettings settings = new RenderSettings
 			{
-				Columns = 1,
-				Rows = 1,
+				Size = 0.5f,
 				UseRotation = true,
 				SamplesPerTile = 4,
 				Resolution = 2,
@@ -106,17 +105,16 @@ namespace Mosaic.Tests
 				" B"
 			);
 
-			using ImageMock result = await QuickRender(tileImage, mainImage, settings);
+			using ImageMock result = QuickRender(tileImage, mainImage, settings);
 			result.AssertEquals(expectedImage);
 		}
 
 		[TestMethod]
-		public async Task TestLeftRotation()
+		public void TestLeftRotation()
 		{
 			RenderSettings settings = new RenderSettings
 			{
-				Columns = 1,
-				Rows = 1,
+				Size = 0.5f,
 				UseRotation = true,
 				SamplesPerTile = 4,
 				Resolution = 2,
@@ -137,17 +135,16 @@ namespace Mosaic.Tests
 				"B "
 			);
 
-			using ImageMock result = await QuickRender(tileImage, mainImage, settings);
+			using ImageMock result = QuickRender(tileImage, mainImage, settings);
 			result.AssertEquals(expectedImage);
 		}
 
 		[TestMethod]
-		public async Task TestNoRotation()
+		public void TestNoRotation()
 		{
 			RenderSettings settings = new RenderSettings
 			{
-				Columns = 1,
-				Rows = 1,
+				Size = 0.5f,
 				UseRotation = true,
 				SamplesPerTile = 4,
 				Resolution = 2,
@@ -168,17 +165,16 @@ namespace Mosaic.Tests
 				"B "
 			);
 
-			using ImageMock result = await QuickRender(tileImage, mainImage, settings);
+			using ImageMock result = QuickRender(tileImage, mainImage, settings);
 			result.AssertEquals(expectedImage);
 		}
 
 		[TestMethod]
-		public async Task TestComplexShapeRotation()
+		public void TestComplexShapeRotation()
 		{
 			RenderSettings settings = new RenderSettings
 			{
-				Columns = 1,
-				Rows = 1,
+				Size = 1.0f / 3.0f,
 				UseRotation = true,
 				UseMirror = false,
 				SamplesPerTile = 9,
@@ -203,17 +199,16 @@ namespace Mosaic.Tests
 				"BB "
 			);
 
-			using ImageMock result = await QuickRender(tileImage, mainImage, settings);
+			using ImageMock result = QuickRender(tileImage, mainImage, settings);
 			result.AssertEquals(expectedImage);
 		}
 
 		[TestMethod]
-		public async Task TestMultipleOverlap()
+		public void TestMultipleOverlap()
 		{
 			RenderSettings settings = new RenderSettings
 			{
-				Columns = 1,
-				Rows = 1,
+				Size = 0.5f,
 				UseRotation = true,
 				SamplesPerTile = 4,
 				Resolution = 2,
@@ -234,17 +229,16 @@ namespace Mosaic.Tests
 				"BB"
 			);
 
-			using ImageMock result = await QuickRender(tileImage, mainImage, settings);
+			using ImageMock result = QuickRender(tileImage, mainImage, settings);
 			result.AssertEquals(expectedImage);
 		}
 
 		[TestMethod]
-		public async Task TestMultipleChoice()
+		public void TestMultipleChoice()
 		{
 			RenderSettings settings = new RenderSettings
 			{
-				Columns = 1,
-				Rows = 1,
+				Size = 0.5f,
 				UseRotation = true,
 				SamplesPerTile = 4,
 				Resolution = 2,
@@ -265,17 +259,16 @@ namespace Mosaic.Tests
 				" B"
 			);
 
-			using ImageMock result = await QuickRender(tileImage, mainImage, settings);
+			using ImageMock result = QuickRender(tileImage, mainImage, settings);
 			result.AssertEquals(expectedImage);
 		}
 
 		[TestMethod]
-		public async Task TestNearMatch()
+		public void TestNearMatch()
 		{
 			RenderSettings settings = new RenderSettings
 			{
-				Columns = 1,
-				Rows = 1,
+				Size = 1.0f / 8.0f,
 				UseRotation = true,
 				SamplesPerTile = 4,
 				Resolution = 8,
@@ -315,23 +308,21 @@ namespace Mosaic.Tests
 				"        "
 			);
 
-			using ImageMock result = await QuickRender(tileImage, mainImage, settings);
+			using ImageMock result = QuickRender(tileImage, mainImage, settings);
 			result.AssertEquals(expectedImage);
 		}
 
-		private async Task<ImageMock> QuickRender(ImageMock tile, ImageMock main, RenderSettings settings)
+		private ImageMock QuickRender(ImageMock tile, ImageMock main, RenderSettings settings)
 		{
 			using var tileStream = tile.GetMemoryStream();
 			using var mainStream = main.GetMemoryStream();
 
-			TileSet sources = new TileSet(settings.Resolution, CropMode.Center);
-			await sources.LoadTilesAsync(new[] { new PictureSourceStream(tileStream) }, null);
-
-			MosaicImage mosaic = new MosaicImage(sources, settings);
-			await mosaic.SetMainImageAsync(new PictureSourceStream(mainStream, "Main"));
+			MosaicImage mosaic = new MosaicImage(settings);
+			mosaic.MainPicture = new PictureSourceStream(mainStream, "Main");
+			mosaic.TilePictures = new[] { new PictureSourceStream(tileStream) };
 
 			using MemoryStream result = new();
-			(await mosaic.RenderAsync(null)).Write(result);
+			mosaic.Render().Write(result);
 			result.Position = 0;
 
 			ImageMock mock = new();

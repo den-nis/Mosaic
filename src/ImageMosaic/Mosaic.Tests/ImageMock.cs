@@ -71,22 +71,22 @@ namespace Mosaic.Tests
 				for (int x = 0; x < data[0].Length; x++)
 				{
 					var c = ToColor(data[y][x]);
-					pixels.SetPixel(x, y, new[] { c.Red, c.Green, c.Blue });
+					pixels.SetPixel(x, y, new[] { c.R, c.G, c.B });
 				}
 			}
 
 			_internalImage = image;
 		}
 
-		private Color ToColor(char c)
+		private MagickColor ToColor(char c)
 		{
 			switch (c)
 			{
-				case 'W': return new Color(255, 255, 255);
-				case 'R': return new Color(255, 0, 0);
-				case 'G': return new Color(0, 255, 0);
-				case 'B': return new Color(0, 0, 255);
-				case ' ': return new Color(0, 0, 0);
+				case 'W': return new MagickColor(255, 255, 255);
+				case 'R': return new MagickColor(255, 0, 0);
+				case 'G': return new MagickColor(0, 255, 0);
+				case 'B': return new MagickColor(0, 0, 255);
+				case ' ': return new MagickColor(0, 0, 0);
 				default: throw new InvalidOperationException("Unknown color");
 			}
 		}
