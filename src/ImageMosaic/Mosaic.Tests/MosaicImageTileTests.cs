@@ -18,7 +18,7 @@ namespace Mosaic.Tests
 		[TestMethod]
 		public void TestMirror()
 		{
-			RenderSettings settings = new RenderSettings
+			RenderSettings settings = new()
 			{
 				Size = .5f,
 				UseMirror = true,
@@ -48,7 +48,7 @@ namespace Mosaic.Tests
 		[TestMethod]
 		public void TestMirrorAndRotation()
 		{
-			RenderSettings settings = new RenderSettings
+			RenderSettings settings = new()
 			{
 				Size = 1.0f / 3.0f,
 				UseMirror = true,
@@ -82,7 +82,7 @@ namespace Mosaic.Tests
 		[TestMethod]
 		public void TestRightRotation()
 		{
-			RenderSettings settings = new RenderSettings
+			RenderSettings settings = new()
 			{
 				Size = 0.5f,
 				UseRotation = true,
@@ -112,7 +112,7 @@ namespace Mosaic.Tests
 		[TestMethod]
 		public void TestLeftRotation()
 		{
-			RenderSettings settings = new RenderSettings
+			RenderSettings settings = new()
 			{
 				Size = 0.5f,
 				UseRotation = true,
@@ -142,7 +142,7 @@ namespace Mosaic.Tests
 		[TestMethod]
 		public void TestNoRotation()
 		{
-			RenderSettings settings = new RenderSettings
+			RenderSettings settings = new()
 			{
 				Size = 0.5f,
 				UseRotation = true,
@@ -172,7 +172,7 @@ namespace Mosaic.Tests
 		[TestMethod]
 		public void TestComplexShapeRotation()
 		{
-			RenderSettings settings = new RenderSettings
+			RenderSettings settings = new()
 			{
 				Size = 1.0f / 3.0f,
 				UseRotation = true,
@@ -206,7 +206,7 @@ namespace Mosaic.Tests
 		[TestMethod]
 		public void TestMultipleOverlap()
 		{
-			RenderSettings settings = new RenderSettings
+			RenderSettings settings = new()
 			{
 				Size = 0.5f,
 				UseRotation = true,
@@ -236,7 +236,7 @@ namespace Mosaic.Tests
 		[TestMethod]
 		public void TestMultipleChoice()
 		{
-			RenderSettings settings = new RenderSettings
+			RenderSettings settings = new()
 			{
 				Size = 0.5f,
 				UseRotation = true,
@@ -266,7 +266,7 @@ namespace Mosaic.Tests
 		[TestMethod]
 		public void TestNearMatch()
 		{
-			RenderSettings settings = new RenderSettings
+			RenderSettings settings = new()
 			{
 				Size = 1.0f / 8.0f,
 				UseRotation = true,
@@ -312,14 +312,16 @@ namespace Mosaic.Tests
 			result.AssertEquals(expectedImage);
 		}
 
-		private ImageMock QuickRender(ImageMock tile, ImageMock main, RenderSettings settings)
+		private static ImageMock QuickRender(ImageMock tile, ImageMock main, RenderSettings settings)
 		{
-			using var tileStream = tile.GetMemoryStream();
-			using var mainStream = main.GetMemoryStream();
+			using Stream tileStream = tile.GetMemoryStream();
+			using Stream mainStream = main.GetMemoryStream();
 
-			MosaicImage mosaic = new MosaicImage(settings);
-			mosaic.MainPicture = new PictureSourceStream(mainStream, "Main");
-			mosaic.TilePictures = new[] { new PictureSourceStream(tileStream) };
+			MosaicImage mosaic = new(settings)
+			{
+				MainPicture = new PictureSourceStream(mainStream, "Main"),
+				TilePictures = new[] { new PictureSourceStream(tileStream) }
+			};
 
 			using MemoryStream result = new();
 			mosaic.Render().Write(result);

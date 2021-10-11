@@ -13,11 +13,11 @@ namespace Mosaic.Tests
 	public class ImageMock : IDisposable
 	{
 		private MagickImage _internalImage;
-		private static Random _rng = new Random();
+		private static readonly Random _rng = new();
 
 		public static ImageMock Build(params string[] data)
 		{
-			var mock = new ImageMock();
+			ImageMock mock = new();
 			mock.BuildImage(data);
 			return mock;
 		}
@@ -45,8 +45,8 @@ namespace Mosaic.Tests
 
 		private void BuildImageNoise(int width, int height)
 		{ 
-			MagickImage image = new MagickImage(MagickColors.Black, width, height);
-			using var pixels = image.GetPixels();
+			MagickImage image = new(MagickColors.Black, width, height);
+			using IPixelCollection<byte> pixels = image.GetPixels();
 
 			for (int y = 0; y < height; y++)
 			{
@@ -63,7 +63,7 @@ namespace Mosaic.Tests
 
 		private void BuildImage(params string[] data)
 		{
-			MagickImage image = new MagickImage(MagickColors.Black, data[0].Length, data.Length);
+			MagickImage image = new(MagickColors.Black, data[0].Length, data.Length);
 			using var pixels = image.GetPixels();
 
 			for (int y = 0; y < data.Length; y++)
@@ -78,17 +78,17 @@ namespace Mosaic.Tests
 			_internalImage = image;
 		}
 
-		private MagickColor ToColor(char c)
+		private static MagickColor ToColor(char c)
 		{
-			switch (c)
+			return c switch
 			{
-				case 'W': return new MagickColor(255, 255, 255);
-				case 'R': return new MagickColor(255, 0, 0);
-				case 'G': return new MagickColor(0, 255, 0);
-				case 'B': return new MagickColor(0, 0, 255);
-				case ' ': return new MagickColor(0, 0, 0);
-				default: throw new InvalidOperationException("Unknown color");
-			}
+				'W' => new MagickColor(255, 255, 255),
+				'R' => new MagickColor(255, 0, 0),
+				'G' => new MagickColor(0, 255, 0),
+				'B' => new MagickColor(0, 0, 255),
+				' ' => new MagickColor(0, 0, 0),
+				_ => throw new InvalidOperationException("Unknown color"),
+			};
 		}
 
 		public void AssertEquals(ImageMock expected)
@@ -96,8 +96,8 @@ namespace Mosaic.Tests
 			Assert.AreEqual(expected._internalImage.Width, _internalImage.Width, "Image width");
 			Assert.AreEqual(expected._internalImage.Height, _internalImage.Height, "Image height");
 
-			using var expectedPixels = expected._internalImage.GetPixels();
-			using var actualPixels = _internalImage.GetPixels();
+			using IPixelCollection<byte> expectedPixels = expected._internalImage.GetPixels();
+			using IPixelCollection<byte> actualPixels = _internalImage.GetPixels();
 
 			for (int y = 0; y < _internalImage.Height; y++)
 			{
@@ -113,6 +113,7 @@ namespace Mosaic.Tests
 		public void Dispose()
 		{
 			_internalImage?.Dispose();
+			GC.SuppressFinalize(this);
 		}
 	}
 }
