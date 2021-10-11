@@ -44,7 +44,7 @@ namespace Mosaic
 				throw new InvalidOperationException("Tiles must be loaded first");
 			}
 
-			int total = Tiles.Count();
+			int total = Tiles.Count;
 			int current = 0;
  
 			Parallel.ForEach(Tiles, source =>
@@ -64,7 +64,7 @@ namespace Mosaic
 
 			Tiles = new HashSet<Tile>(tiles);
 
-			int total = Tiles.Count();
+			int total = Tiles.Count;
 			int current = 0;
 
 			Parallel.ForEach(Tiles, tile =>

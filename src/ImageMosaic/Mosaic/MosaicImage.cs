@@ -42,10 +42,10 @@ namespace Mosaic
 
 			using var main = LoadMainImage();
 
-			using TileSet set = new TileSet(_settings);
-			Grid grid = new Grid(_columns, _rows, _settings.UseGridSearch);
+			using TileSet set = new(_settings);
+			Grid grid = new(_columns, _rows, _settings.UseGridSearch);
 			Matcher matcher = new(grid, set, main, _settings);
-			Renderer renderer = new Renderer(grid, _settings.Resolution);
+			Renderer renderer = new(grid, _settings.Resolution);
 
 			set.LoadTiles(TilePictures, progress, cancellationToken);
 			set.IndexSamples(progress, cancellationToken);

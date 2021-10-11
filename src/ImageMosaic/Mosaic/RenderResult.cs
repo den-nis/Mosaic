@@ -28,7 +28,7 @@ namespace Mosaic
 				StartedAt = startedAt,
 				FinishedAt = DateTime.Now,
 				TileUsageOverview = set.Tiles.ToDictionary(k => k.Source.Identifier, v => v.TimesUsed),
-				TotalPictures = set.Tiles.Count(),
+				TotalPictures = set.Tiles.Count,
 				UsedPictures = set.Tiles.Where(t => t.TimesUsed > 0).Count(),
 				_picture = picture
 			};
@@ -46,6 +46,7 @@ namespace Mosaic
 		public void Dispose()
 		{
 			_picture.Dispose();
+			GC.SuppressFinalize(this);
 		}
 	}
 }

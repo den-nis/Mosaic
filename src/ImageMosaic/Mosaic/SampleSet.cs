@@ -10,7 +10,7 @@ namespace Mosaic
 	internal class SampleSet : IEquatable<SampleSet>
 	{
 		public int RegionSize { get; }
-		private Sample[] _samples { get; set; }
+		private Sample[] _samples;
 		public int Amount => _samples.Length;
 
 		public SampleSet(Sample[] samples, int regionSize)

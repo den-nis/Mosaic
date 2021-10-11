@@ -26,7 +26,6 @@ namespace Mosaic
 
 		private int _repeatRadius;
 		private Tile[] _tileArray;
-		private Dictionary<(int x, int y), List<PlaceOption>> _targets = new();
 
 		public Matcher(Grid grid, TileSet sources, IPicture main, RenderSettings settings)
 		{
@@ -133,15 +132,15 @@ namespace Mosaic
 		{
 			if (_settings.RepeatRadius == -1)
 			{
-				var maxRadius = Math.Sqrt(
+				double maxRadius = Math.Sqrt(
 					_grid.Width * _grid.Width +
 					_grid.Height * _grid.Height
 				);
 
-				var tiles = _set.Tiles.Count();
-				var spots = _grid.Width * _grid.Height;
+				int tiles = _set.Tiles.Count;
+				int spots = _grid.Width * _grid.Height;
 
-				return (int)Math.Round(Math.Min(((float)tiles / spots) * 25f, maxRadius));
+				return (int)Math.Round(Math.Min((float)tiles / spots * 25f, maxRadius));
 			}
 			else
 			{

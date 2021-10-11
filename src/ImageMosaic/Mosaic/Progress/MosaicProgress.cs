@@ -34,16 +34,15 @@ namespace Mosaic.Progress
 
 		public string StepDisplayName()
 		{
-			switch(Step)
+			return Step switch
 			{
-				case Steps.Setup: return "Setup";
-				case Steps.Loading: return "Caching";
-				case Steps.Indexing: return "Indexing";
-				case Steps.Matching: return "Finding matches";
-				case Steps.Rendering: return "Rendering";
-
-				default: throw new NotImplementedException();
-			}
+				Steps.Setup => "Setup",
+				Steps.Loading => "Caching",
+				Steps.Indexing => "Indexing",
+				Steps.Matching => "Finding matches",
+				Steps.Rendering => "Rendering",
+				_ => throw new NotImplementedException(),
+			};
 		}
 	}
 }
