@@ -24,14 +24,14 @@ jobs:
     - name: Create Artifact
       uses: TheDoctor0/zip-release@0.6.0
       with:
-        filename: release.zip
+        filename: Release.zip
         path: Publish/
     - name: Create release
       uses: ncipollo/release-action@v1.8.10
       with:
         tag: v1.0
         allowUpdates: true
-        artifact: release.zip
+        artifact: Release.zip
         
       
       
