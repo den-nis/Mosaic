@@ -24,7 +24,7 @@ namespace Mosaic.CLI
 		[Option('f', "filter", Default = "*.*", HelpText = "The search string to match against the names of files in the input path")]
 		public string Filter { get; set; }
 
-		[Option('s', "size", Default = 1, HelpText = "Multiplier for the grid size. 0.5 = 2 tiles per pixel")]
+		[Option('s', "size", Default = 0.1, HelpText = "Non zero multiplier for the grid size. A smaller value will result in fewer tiles")]
 		public float Size { get; set; }
 
 		[Option('R', "rotate",  Default = false, HelpText = "Enable tile rotation")]
