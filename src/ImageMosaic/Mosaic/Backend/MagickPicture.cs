@@ -56,7 +56,8 @@ namespace Mosaic
 			List<Sample> result = new(amount);
 			int line = (int)Math.Sqrt(amount);
 			int blockSize = (int)(size / line);
-			var pixels = _pixelCache ?? _internalImage.GetPixelsUnsafe();
+			
+			using var pixels = _internalImage.GetPixels();
 
 			for (int by = 0; by < line; by++)
 			{
@@ -90,7 +91,7 @@ namespace Mosaic
 			return result.ToArray();
 		}
 
-		private static Color GetBlockAverageColor(IUnsafePixelCollection<byte> pixels, int offsetX, int offsetY, int size)
+		private static Color GetBlockAverageColor(IPixelCollection<byte> pixels, int offsetX, int offsetY, int size)
 		{
 			long totalGreen = 0, totalRed = 0, totalBlue = 0;
 

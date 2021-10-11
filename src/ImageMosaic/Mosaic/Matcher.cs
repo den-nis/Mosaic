@@ -47,26 +47,30 @@ namespace Mosaic
 		/// <summary>
 		/// Find matches and places them on the grid
 		/// </summary>
-		public Task FindMatchesAsync(IProgress<MosaicProgress> progress)
+		public void FindMatches(IProgress<MosaicProgress> progress, CancellationToken token)
 		{
 			_repeatRadius = GetRepeatRadius();
+			_main.CachePixels();
 
-			return Task.Run(() =>
+			try
 			{
-				_main.CachePixels();
 				_tileArray = _set.Tiles.ToArray();
 
 				for (int y = 0; y < _grid.Height; y++)
 				{
-					progress?.Report(new MosaicProgress("Finding matches", (y + 1f) / _grid.Height));
 					for (int x = 0; x < _grid.Width; x++)
 					{
+						progress?.Report(new MosaicProgress(MosaicProgress.Steps.Matching, ((x + y * _grid.Width) + 1f) / (_grid.Width * _grid.Height)));
+						token.ThrowIfCancellationRequested();
+
 						HandleTile(x, y);
 					}
 				}
-
+			}
+			finally
+			{
 				_main.UncachePixels();
-			});
+			}
 		}
 
 		private void HandleTile(int x, int y)
@@ -130,12 +134,12 @@ namespace Mosaic
 			if (_settings.RepeatRadius == -1)
 			{
 				var maxRadius = Math.Sqrt(
-					_settings.Rows * _settings.Rows +
-					_settings.Columns * _settings.Columns
+					_grid.Width * _grid.Width +
+					_grid.Height * _grid.Height
 				);
 
 				var tiles = _set.Tiles.Count();
-				var spots = _settings.Rows * _settings.Columns;
+				var spots = _grid.Width * _grid.Height;
 
 				return (int)Math.Round(Math.Min(((float)tiles / spots) * 25f, maxRadius));
 			}

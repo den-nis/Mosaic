@@ -8,30 +8,41 @@ namespace Mosaic.Progress
 {
 	public record MosaicProgress
 	{
-		public string Name { get; set; }
+		public enum Steps
+		{
+			Setup,
+			Loading,
+			Indexing,
+			Matching,
+			Rendering,
+		}
+
+		public Steps Step { get; set; }
 		public float Percentage { get; set; }
+		public string AdditionalInfo { get; set; }
 
-		public MosaicProgress(string name, float percentage)
+		public MosaicProgress(Steps step, float percentage) : this(step, percentage, string.Empty) { }
+
+		public MosaicProgress(Steps step) : this(step, -1, string.Empty) { }
+
+		public MosaicProgress(Steps step, float percentage, string additionalInfo)
 		{
-			Name = name;
+			Step = step;
 			Percentage = percentage;
+			AdditionalInfo = additionalInfo;
 		}
 
-		public MosaicProgress(string name)
+		public string StepDisplayName()
 		{
-			Name = name;
-			Percentage = -1f;
-		}
+			switch(Step)
+			{
+				case Steps.Setup: return "Setup";
+				case Steps.Loading: return "Caching";
+				case Steps.Indexing: return "Indexing";
+				case Steps.Matching: return "Finding matches";
+				case Steps.Rendering: return "Rendering";
 
-		public override string ToString()
-		{
-			if (Percentage != -1)
-			{
-				return $"{Name} - {Math.Round(Percentage * 100, 2)}%";
-			}
-			else
-			{
-				return $"{Name}...";
+				default: throw new NotImplementedException();
 			}
 		}
 	}

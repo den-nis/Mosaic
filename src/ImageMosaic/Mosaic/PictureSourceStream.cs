@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Mosaic
 {
-	internal class PictureSourceStream : PictureSource, IDisposable
+	public class PictureSourceStream : PictureSource, IDisposable
 	{
 		private readonly Stream _stream;
 

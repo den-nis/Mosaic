@@ -13,18 +13,18 @@ using System.Threading;
 
 namespace Mosaic
 {
-	public class MosaicImage : IDisposable
+	public class MosaicImage
 	{
-		public bool DisposeMainImage { get; set; } = true;
-
-		private readonly TileSet _set;
 		private readonly RenderSettings _settings;
-		private Stream _mainPictureStream;
-		private IPicture _mainPicture;
 
-		public MosaicImage(TileSet sources, RenderSettings settings)
+		public IEnumerable<PictureSource> TilePictures { get; set; }
+		public PictureSource MainPicture { get; set; }
+
+		private int _rows;
+		private int _columns;
+
+		public MosaicImage(RenderSettings settings)
 		{
-			_set = sources;
 			_settings = settings;
 
 			if (!_settings.IsValid(out var message))
@@ -33,58 +33,42 @@ namespace Mosaic
 			}
 		}
 
-		public Task SetMainImageAsync(PictureSource source)
-		{
-			_mainPictureStream = source.GetDataStream();
-			return Task.Run(() =>
-			{
-				_mainPicture = PictureFactory.Open(_mainPictureStream);
-				_mainPicture.Resize(_settings.Columns * _settings.Resolution, _settings.Rows * _settings.Resolution);
-			});
-		}
+		public RenderResult Render() => Render(null, CancellationToken.None);
 
-		public async Task<RenderResult> RenderAsync(IProgress<MosaicProgress> progress)
+		public RenderResult Render(IProgress<MosaicProgress> progress, CancellationToken cancellationToken)
 		{
-			if (_mainPicture == null)
-			{
-				throw new InvalidOperationException($"Missing main image. call {nameof(SetMainImageAsync)}()");
-			}
-
+			progress?.Report(new MosaicProgress(MosaicProgress.Steps.Setup, 0));
 			var startedAt = DateTime.Now;
-			_set.ResetMetadata();
 
-			Grid grid = new Grid(_settings.Columns, _settings.Rows, _settings.UseGridSearch);
-			Matcher matcher = new(grid, _set, _mainPicture, _settings);
+			using var main = LoadMainImage();
+
+			using TileSet set = new TileSet(_settings);
+			Grid grid = new Grid(_columns, _rows, _settings.UseGridSearch);
+			Matcher matcher = new(grid, set, main, _settings);
 			Renderer renderer = new Renderer(grid, _settings.Resolution);
 
-			await LoadSamplesAsync(progress);
-			await matcher.FindMatchesAsync(progress);
-			var render = await renderer.RenderAsync(progress);
+			set.LoadTiles(TilePictures, progress, cancellationToken);
+			set.IndexSamples(progress, cancellationToken);
 
-			return RenderResult.Build(startedAt, render, _set);
+			matcher.FindMatches(progress, cancellationToken);
+			var render = renderer.Render(progress);
+
+			return RenderResult.Build(startedAt, render, set);
 		}
 
-		private Task LoadSamplesAsync(IProgress<MosaicProgress> stepProgress)
+		private IPicture LoadMainImage()
 		{
-			return Task.Run(() =>
+			if (MainPicture == null)
 			{
-				int total = _set.Tiles.Count();
-				int current = 0;
-				Parallel.ForEach(_set.Tiles, source =>
-				{
-					source.LoadSamples(_settings.SamplesPerTile, _settings.UseAverageSamples);
-					stepProgress?.Report(new MosaicProgress("Indexing", (float)Interlocked.Increment(ref current) / total));
-				});
-			});
-		}
-
-		public void Dispose()
-		{
-			if (DisposeMainImage)
-			{
-				_mainPicture.Dispose();
-				_mainPictureStream.Dispose();
+				throw new InvalidOperationException($"Missing main image. assign {nameof(MainPicture)} before calling");
 			}
+
+			using var stream = MainPicture.GetDataStream();
+			var main = PictureFactory.Open(stream);
+			_rows = (int)(main.Height * _settings.Size);
+			_columns = (int)(main.Width * _settings.Size);
+			main.Resize(_columns * _settings.Resolution, _rows * _settings.Resolution);
+			return main;
 		}
 	}
 }

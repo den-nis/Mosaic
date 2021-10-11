@@ -27,10 +27,10 @@ namespace Mosaic
 			{
 				StartedAt = startedAt,
 				FinishedAt = DateTime.Now,
-				_picture = picture,
 				TileUsageOverview = set.Tiles.ToDictionary(k => k.Source.Identifier, v => v.TimesUsed),
 				TotalPictures = set.Tiles.Count(),
-				UsedPictures = set.Tiles.Where(t => t.TimesUsed > 0).Count()
+				UsedPictures = set.Tiles.Where(t => t.TimesUsed > 0).Count(),
+				_picture = picture
 			};
 		}
 

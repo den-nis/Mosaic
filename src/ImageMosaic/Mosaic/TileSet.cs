@@ -1,90 +1,80 @@
 ﻿using Mosaic.Progress;
+using Mosaic.Settings;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Mosaic
 {
-	public class TileSet : IDisposable
+	internal class TileSet : IDisposable
 	{
 		public int Resolution { get; }
 		public CropMode CropMode { get; }
+		public bool AverageSamples { get; }
+		public int SamplesPerTile { get; }
+
+		private bool _loaded = false;
 
 		/// <summary>
 		/// The value of this dictionary is not used.
 		/// </summary>
-		internal ConcurrentDictionary<Tile, byte> Sources { get; set; } = new();
-		internal IEnumerable<Tile> Tiles => Sources.Keys;
+		public HashSet<Tile> Tiles { get; private set; } = new();
 
-		public TileSet(int resolution, CropMode cropMode)
+		public TileSet(RenderSettings settings)
 		{
-			Resolution = resolution;
-			CropMode = cropMode;
+			Resolution = settings.Resolution;
+			CropMode = settings.CropMode;
+			AverageSamples = settings.UseAverageSamples;
+			SamplesPerTile = settings.SamplesPerTile;
 		}
 
-		public Task LoadTilesAsync(IEnumerable<PictureSource> sources, IProgress<FileProgress> progress)
+		public void LoadTiles(IEnumerable<PictureSource> sources, IProgress<MosaicProgress> progress, CancellationToken ct)
 		{
-			var tiles = sources.Select(s => new Tile(s));
-			return AddRangeAsync(tiles, progress);
+			Load(sources.Select(s => new Tile(s)), progress, ct);
 		}
 
-		internal void ResetMetadata()
+		public void IndexSamples(IProgress<MosaicProgress> progress, CancellationToken ct)
 		{
-			foreach(var tile in Sources.Keys)
+			if (!_loaded)
 			{
-				tile.ResetMetadata();
-			}
-		}
-
-		private Task AddAsync(Tile tile)
-		{
-			return AddRangeAsync(new[] { tile }, null);
-		}
-
-		private Task AddRangeAsync(IEnumerable<Tile> tiles, IProgress<FileProgress> progress)
-		{
-			return LoadAsync(AddNew(tiles), progress);
-		}
-
-		private Task SetAsync(IEnumerable<Tile> tiles, IProgress<FileProgress> progress)
-		{
-			var lookup = new HashSet<Tile>(tiles.Distinct());
-			foreach (var item in Sources)
-			{
-				if (!lookup.Contains(item.Key))
-				{
-					Sources.TryRemove(item.Key, out _);
-				}
+				throw new InvalidOperationException("Tiles must be loaded first");
 			}
 
-			return LoadAsync(AddNew(lookup), progress);
-		}
-
-		private Task LoadAsync(IEnumerable<Tile> tiles, IProgress<FileProgress> progress)
-		{
-			return Task.Run(() =>
+			int total = Tiles.Count();
+			int current = 0;
+ 
+			Parallel.ForEach(Tiles, source =>
 			{
-				Parallel.ForEach(tiles, tile =>
-				{
-					progress?.Report(new FileProgress(tile.Source.Identifier));
-					tile.Load(Resolution, CropMode);
-				});
+				source.LoadSamples(SamplesPerTile, AverageSamples);
+				progress?.Report(new MosaicProgress(MosaicProgress.Steps.Indexing, (float)Interlocked.Increment(ref current) / total, source.Source.Identifier));
+				ct.ThrowIfCancellationRequested();
 			});
 		}
 
-		/// <returns>Returns the new elements</returns>
-		private IEnumerable<Tile> AddNew(IEnumerable<Tile> sources)
+		private void Load(IEnumerable<Tile> tiles, IProgress<MosaicProgress> progress, CancellationToken ct)
 		{
-			foreach (var item in sources.Distinct())
+			if (_loaded)
 			{
-				if (Sources.TryAdd(item, 0))
-				{
-					yield return item;
-				}
+				throw new InvalidOperationException("Tiles are already loaded");
 			}
+
+			Tiles = new HashSet<Tile>(tiles);
+
+			int total = Tiles.Count();
+			int current = 0;
+
+			Parallel.ForEach(Tiles, tile =>
+			{
+				progress?.Report(new MosaicProgress(MosaicProgress.Steps.Loading, (float)Interlocked.Increment(ref current) / total, tile.Source.Identifier));
+				tile.Load(Resolution, CropMode);
+				ct.ThrowIfCancellationRequested();
+			});
+
+			_loaded = true;
 		}
 
 		public void Dispose()
@@ -93,6 +83,8 @@ namespace Mosaic
 			{
 				tile?.Dispose();
 			}
-		}
+
+			Tiles.Clear();
+		}		
 	}
 }

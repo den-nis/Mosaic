@@ -11,7 +11,7 @@ namespace Mosaic
 		public PictureSource Source { get; set; }
 
 		private IPicture _picture;
-		internal IPicture Picture
+		public IPicture Picture
 		{
 			get => _picture ?? throw new InvalidOperationException("Image must be loaded first");
 			private set => _picture = value;
@@ -46,7 +46,7 @@ namespace Mosaic
 
 		public void Load(int resolution, CropMode crop)
 		{
-			var sourceStream = Source.GetDataStream();
+			using var sourceStream = Source.GetDataStream();
 			sourceStream.Position = 0;
 
 			IPicture picture = PictureFactory.Open(sourceStream);

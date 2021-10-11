@@ -16,4 +16,3 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM.
 
 [assembly: Guid("620e7a80-78d1-4e91-a657-b865b43abc2f")]
-[assembly: InternalsVisibleToAttribute("Mosaic.Tests")]

@@ -4,8 +4,7 @@ namespace Mosaic.Settings
 {
 	public record RenderSettings
 	{
-		public int Columns { get; init; }
-		public int Rows { get; init; }
+		public float Size { get; init; }
 		public int Resolution { get; init; }
 
 		public bool UseRotation { get; init; }
@@ -20,7 +19,7 @@ namespace Mosaic.Settings
 		public bool UseAverageSamples { get; init; }
 
 		/// <summary>
-		/// Within this radius pictures should not repeat but might do if there is no alternative tile
+		/// Within this radius pictures should not repeat but might do if there is no alternative tile (-1 for auto)
 		/// </summary>
 		public int RepeatRadius { get; init; }
 
@@ -29,6 +28,8 @@ namespace Mosaic.Settings
 		/// Might speed up a render with lots of duplicates and a small but non zero repeat radius
 		/// </summary>
 		public bool UseGridSearch { get; init; }
+
+		public CropMode CropMode { get; init; } = CropMode.Center;
 
 		public bool IsValid(out string message)
 		{
