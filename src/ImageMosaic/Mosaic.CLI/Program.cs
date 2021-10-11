@@ -22,17 +22,19 @@ namespace Mosaic.CLI
 
 		static void Run(Options options)
 		{
-			var progress = new ConsoleProgress();
+			ConsoleProgress progress = new();
 			Console.WriteLine();
 
-			var searchOption = options.AllDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-			var files = Directory.GetFiles(options.Input, options.Filter, searchOption);
+			SearchOption searchOption = options.AllDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+			string[] files = Directory.GetFiles(options.Input, options.Filter, searchOption);
 
-			MosaicImage mosaic = new MosaicImage(MapRenderSettings(options));
-			mosaic.MainPicture = new PictureSourceFile(options.Main);
-			mosaic.TilePictures = files.Select(f => new PictureSourceFile(f));
+			MosaicImage mosaic = new(MapRenderSettings(options))
+			{
+				MainPicture = new PictureSourceFile(options.Main),
+				TilePictures = files.Select(f => new PictureSourceFile(f))
+			};
 
-			var result = mosaic.Render(progress, CancellationToken.None);
+			RenderResult result = mosaic.Render(progress, CancellationToken.None);
 			result.Write(options.Output);
 
 			Console.WriteLine();
