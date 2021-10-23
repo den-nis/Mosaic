@@ -19,9 +19,6 @@ namespace Mosaic
 
 		private bool _loaded = false;
 
-		/// <summary>
-		/// The value of this dictionary is not used.
-		/// </summary>
 		public HashSet<Tile> Tiles { get; private set; } = new();
 
 		public TileSet(RenderSettings settings)
