@@ -1,6 +1,6 @@
 # Mosaic2
 
-Small application for creating mosaic images.
+Small CLI and GUI application for creating mosaic images.
 
 ## Example output
 ![Example](https://user-images.githubusercontent.com/50838791/136795543-5277892d-7160-4361-8905-e3f49670081a.jpg)
@@ -40,7 +40,5 @@ Small application for creating mosaic images.
 
   --version              Display version information.
 ```
-The default --size is one tenth. Meaning for every 10 pixels in the main image one tile will be placed.
-
 
 
