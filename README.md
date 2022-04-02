@@ -1,4 +1,4 @@
-# Mosaic2
+# Mosaic
 
 Small CLI and GUI application for creating mosaic images.
 
