@@ -18,7 +18,7 @@ Small CLI and GUI application for creating mosaic images.
 
   -f, --filter           (Default: *.*) The search string to match against the names of files in the input path
 
-  -s, --size             (Default: 0,1) Non zero multiplier for the grid size. A smaller value will result in fewer tiles
+  -s, --size             (Default: 0.1) Non zero multiplier for the grid size. A smaller value will result in fewer tiles
 
   -R, --rotate           (Default: false) Enable tile rotation
 
