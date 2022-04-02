@@ -1,14 +1,9 @@
 ﻿using Mosaic.GUI.Models;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Mosaic.GUI.DataAccess
 {
-	public interface ISettingsRepository
+    public interface ISettingsRepository
 	{
 		event EventHandler<EventArgs> SettingsUpdated;
 

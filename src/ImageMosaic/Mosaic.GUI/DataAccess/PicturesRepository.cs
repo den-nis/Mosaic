@@ -1,13 +1,12 @@
 ﻿using Mosaic.GUI.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Mosaic.GUI.DataAccess
 {
-	public interface IPicturesRepository
+    public interface IPicturesRepository
 	{
 		event EventHandler<PictureEventArgs> OnMainChanged;
 		event EventHandler<PictureEventArgs> OnPictureAdded;
@@ -15,7 +14,8 @@ namespace Mosaic.GUI.DataAccess
 
 		void AddPicture(PictureModel picture);
 		PictureModel GetMain();
-		IEnumerable<PictureModel> GetPictures();
+		IEnumerable<PictureModel> GetAvailablePictures();
+		IEnumerable<PictureModel> GetUnavailablePictures();
 		void RemovePicture(PictureModel picture);
 		void SetMain(PictureModel target);
 	}
@@ -72,10 +72,19 @@ namespace Mosaic.GUI.DataAccess
 			OnMainChanged?.Invoke(this, new PictureEventArgs(target));
 		}
 
-		public IEnumerable<PictureModel> GetPictures()
+		public IEnumerable<PictureModel> GetAvailablePictures()
 		{
-			return _pictures;
+			return _pictures
+				.AsParallel()
+				.Where(p => File.Exists(p.FullPath));
 		}
+
+		public IEnumerable<PictureModel> GetUnavailablePictures()
+        {
+			return _pictures
+				.AsParallel()
+				.Where(p => !File.Exists(p.FullPath));
+        }
 
 		/// <summary>
 		/// Returns null if there is no main picture

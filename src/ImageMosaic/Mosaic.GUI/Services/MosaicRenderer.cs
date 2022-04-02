@@ -36,13 +36,20 @@ namespace Mosaic.GUI.Services
 
 		public void StartRender()
 		{
+			var unavailable = _pictures.GetUnavailablePictures();
+			if (unavailable.Any())
+			{
+				UnavailableDialog(unavailable);
+				return;
+			}
+
 			if (_pictures.GetMain() == null)
 			{
 				_dialogOpener.ErrorDialog("There is no main image selected");
 				return;
 			}
 
-			if (_pictures.GetPictures().Count() < MIN_AMOUNT_PICTURES)
+			if (_pictures.GetAvailablePictures().Count() < MIN_AMOUNT_PICTURES)
 			{
 				_dialogOpener.ErrorDialog($"There need to be atleast {MIN_AMOUNT_PICTURES} pictures");
 				return;
@@ -65,7 +72,7 @@ namespace Mosaic.GUI.Services
 			MosaicImage image = new(BuildSettings())
 			{
 				MainPicture = new PictureSourceFile(_pictures.GetMain().FullPath),
-				TilePictures = _pictures.GetPictures()
+				TilePictures = _pictures.GetAvailablePictures()
 				.Where(p => !p.IsMain || includeMain)
 				.Select(p => new PictureSourceFile(p.FullPath))
 			};
@@ -110,6 +117,19 @@ namespace Mosaic.GUI.Services
 				UseGridSearch = false,
 				CropMode = CropMode.Center,
 			};
+		}
+
+		private void UnavailableDialog(IEnumerable<PictureModel> unavailable)
+        {
+			StringBuilder sb = new("The following images are unavailable");
+			sb.AppendLine();
+
+			foreach (var image in unavailable)
+			{
+				sb.AppendLine($" - {image.FullPath}");
+			}
+
+			_dialogOpener.ErrorDialog(sb.ToString());
 		}
 	}
 }
